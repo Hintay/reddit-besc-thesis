@@ -561,50 +561,51 @@ This section characterizes six failure modes identified through manual analysis 
 With post-level reliability confirmed, we turn to the period-level trend annotations. @fig-user-timeline shows the two-granularity annotation for four representative users covering diverse BD presentations.
 
 #figure(
-  image("fig_timeline.svg", width: 78%),
+  image("fig_timeline.svg", width: 100%),
   caption: [Mood trajectories for four anonymized users illustrating contrasting BD patterns (A: depressive with fluctuation, 49 periods; B: hypomanic-leaning with frequent manic transitions, 75 periods; C: manic-dominant with rapid cycling, 37 periods; D: dense posting with high mixed-features incidence, 25 periods). Bars = 14-day periods (color = dominant state; hatch = trend direction; thin black border = `with_mixed_features`). Dots above bars = individual post-level annotations, color-coded by post state.],
 ) <fig-user-timeline>
 
-@tab-trend-dist reports the distribution of trend directions across the annotated periods.
+@tab-pilot-dists reports the distributions of trend directions and dominant states across the annotated periods.
 
 #figure(
-  table(
-    columns: 4,
-    align: (left, right, right, left),
-    stroke: none,
-    table.hline(),
-    table.header(
-      [*Trend direction*], [*Periods*], [*%*], [*Interpretation*],
+  grid(
+    columns: (1fr, 1fr),
+    column-gutter: 8pt,
+    align: top,
+    table(
+      columns: 3,
+      align: (left, right, right),
+      stroke: none,
+      table.hline(),
+      table.header(
+        [*Trend direction*], [*Periods*], [*%*],
+      ),
+      table.hline(stroke: 0.5pt),
+      [NO\_TREND],            [1,506], [83.9%],
+      [FLUCTUATING],          [106],   [5.9%],
+      [TOWARDS\_DEPRESSION],  [105],   [5.9%],
+      [TOWARDS\_MANIA],       [77],    [4.3%],
+      table.hline(),
     ),
-    table.hline(stroke: 0.5pt),
-    [NO\_TREND],             [1,506], [83.9%], [Mood state maintained throughout period],
-    [FLUCTUATING],          [106],   [5.9%],  [Alternation between states, no clear direction],
-    [TOWARDS\_DEPRESSION],  [105],   [5.9%],  [Progressive worsening toward depressive pole],
-    [TOWARDS\_MANIA],       [77],    [4.3%],  [Progressive worsening toward manic pole],
-    table.hline(),
-  ),
-  caption: [Distribution of 14-day period trend directions ($n = 1794$ periods from 105 users). The predominance of NO\_TREND is clinically expected: most 14-day windows capture a single ongoing episode or stable phase rather than a state transition.],
-) <tab-trend-dist>
-
-#figure(
-  table(
-    columns: 3,
-    align: (left, right, right),
-    stroke: none,
-    table.hline(),
-    table.header(
-      [*Dominant state*], [*Periods*], [*%*],
+    table(
+      columns: 3,
+      align: (left, right, right),
+      stroke: none,
+      table.hline(),
+      table.header(
+        [*Dominant state*], [*Periods*], [*%*],
+      ),
+      table.hline(stroke: 0.5pt),
+      [Stable],     [765], [42.6%],
+      [Depressive], [564], [31.4%],
+      [Hypomanic],  [157], [8.8%],
+      [Manic],      [54],  [3.0%],
+      [Uncertain],  [254], [14.2%],
+      table.hline(),
     ),
-    table.hline(stroke: 0.5pt),
-    [Stable],     [765], [42.6%],
-    [Depressive], [564], [31.4%],
-    [Hypomanic],  [157], [8.8%],
-    [Manic],      [54],  [3.0%],
-    [Uncertain],  [254], [14.2%],
-    table.hline(),
   ),
-  caption: [Distribution of dominant states across 14-day periods ($n = 1794$). The `with_mixed_features` specifier was applied to 84 periods (4.7%).],
-) <tab-state-dist>
+  caption: [Period-level distributions on the 105-user cohort ($n = 1794$). Left: trend directions (NO\_TREND = state maintained, FLUCTUATING = alternation, TOWARDS\_MANIA / TOWARDS\_DEPRESSION = progressive worsening); the NO\_TREND predominance is clinically expected, since most 14-day windows capture a single ongoing episode. Right: dominant states; the `with_mixed_features` specifier was applied to 84 periods (4.7%).],
+) <tab-pilot-dists>
 
 Most 14-day windows show NO\_TREND, which is expected: a typical BD mood episode lasts weeks to months (depressive) or 1--4 weeks (manic) per DSM-5 @apa2013dsm5, so state transitions within a single 14-day window are infrequent. The TOWARDS\_DEPRESSION and TOWARDS\_MANIA trends, though rare, mark episode onset or escalation, which are the signals most relevant for early intervention.
 
@@ -635,7 +636,7 @@ Stable and Depressive states dominate the dataset; manic-pole states (Hypomanic 
 
 = Discussion <discussionsec>
 
-*Period-level trends.* Prior BD datasets provide per-user labels @cohan2018smhd @sekulic2018not or per-post scores @lee2024detecting, yet not mood _trajectories_; our period-level annotations add this dimension by recording in each 14-day window not only the dominant state but also whether mood is shifting (trend direction) and when shifts occur (change points). From the trend distribution (@pilotsec), four observations stand out. (1) TOWARDS\_MANIA and TOWARDS\_DEPRESSION trends are rare yet clinically the most important signals, as they mark episode onset where intervention has the most impact. (2) FLUCTUATING periods may correspond to rapid cycling or mixed presentations that single-post labels cannot capture. (3) Post-level states and period-level trends together enable hierarchical modeling: predicting the next period's trajectory from the sequence of post-level features. (4) The dominant-state distribution (@tab-state-dist) preserves meaningful manic-pole representation, in contrast to MDD-recruited cohorts such as BD-Risk where 88.9% of posts fall in the depressive-or-neutral range; this balance is important for downstream modeling that must learn to distinguish manic-pole from depressive states rather than predict the depressive majority class. The trend distributions are consistent with clinical expectations (see @pilotsec); period-level expert annotations would be required for direct external validation. A complementary direction is to model the signal currently missing from the schema: periods with `NO_DATA` (see @fig-period-slicing) are excluded because no text is available, while reduced social media activity is sometimes associated with depression in digital-phenotyping research @faurholt2018smartphone, though the relationship is heterogeneous --- some users post more during depressive episodes, others post less, and many non-posting periods reflect factors unrelated to mood (changing platform interest, offline life events, account suspension). Treating absence as a mood signal would therefore require posting-frequency features benchmarked against per-user baseline activity, beyond the scope of a text-based annotation pipeline.
+*Period-level trends.* Prior BD datasets provide per-user labels @cohan2018smhd @sekulic2018not or per-post scores @lee2024detecting, yet not mood _trajectories_; our period-level annotations add this dimension by recording in each 14-day window not only the dominant state but also whether mood is shifting (trend direction) and when shifts occur (change points). From the trend distribution (@pilotsec), four observations stand out. (1) TOWARDS\_MANIA and TOWARDS\_DEPRESSION trends are rare yet clinically the most important signals, as they mark episode onset where intervention has the most impact. (2) FLUCTUATING periods may correspond to rapid cycling or mixed presentations that single-post labels cannot capture. (3) Post-level states and period-level trends together enable hierarchical modeling: predicting the next period's trajectory from the sequence of post-level features. (4) The dominant-state distribution (@tab-pilot-dists) preserves meaningful manic-pole representation, in contrast to MDD-recruited cohorts such as BD-Risk where 88.9% of posts fall in the depressive-or-neutral range; this balance is important for downstream modeling that must learn to distinguish manic-pole from depressive states rather than predict the depressive majority class. The trend distributions are consistent with clinical expectations (see @pilotsec); period-level expert annotations would be required for direct external validation. A complementary direction is to model the signal currently missing from the schema: periods with `NO_DATA` (see @fig-period-slicing) are excluded because no text is available, while reduced social media activity is sometimes associated with depression in digital-phenotyping research @faurholt2018smartphone, though the relationship is heterogeneous --- some users post more during depressive episodes, others post less, and many non-posting periods reflect factors unrelated to mood (changing platform interest, offline life events, account suspension). Treating absence as a mood signal would therefore require posting-frequency features benchmarked against per-user baseline activity, beyond the scope of a text-based annotation pipeline.
 
 *Submission--comment asymmetry.* @tab-post-state-dist shows that submissions and comments carry very different mood-state distributions: 51.2% of submissions are labeled with a polar state (Manic, Hypomanic, or Depressive) while only 9.1% of comments are, and comments are dominated by Stable (88.0%). This reflects platform affordances --- submissions are longer-form posts authors use to disclose distress, recovery, or treatment changes, whereas comments are short replies (advice, factual answers, expressions of support). The disparity has two downstream implications: a per-post classifier evaluated on a comment-heavy corpus will appear over-confident on Stable simply because most comments are conversational, so per-content-type metrics are preferable to a single aggregate; and trajectory models that aggregate per-post states into period-level features should weight submissions more heavily than comments, or rely on the period-level dominant-state annotation (which already aggregates evidence across content types within the 14-day window) as the primary trajectory signal.
 
