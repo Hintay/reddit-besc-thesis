@@ -561,7 +561,7 @@ This section characterizes six failure modes identified through manual analysis 
 With post-level reliability confirmed, we turn to the period-level trend annotations. @fig-user-timeline shows the two-granularity annotation for four representative users covering diverse BD presentations.
 
 #figure(
-  image("fig_timeline.svg", width: 88%),
+  image("fig_timeline.svg", width: 78%),
   caption: [Mood trajectories for four anonymized users illustrating contrasting BD patterns (A: depressive with fluctuation, 49 periods; B: hypomanic-leaning with frequent manic transitions, 75 periods; C: manic-dominant with rapid cycling, 37 periods; D: dense posting with high mixed-features incidence, 25 periods). Bars = 14-day periods (color = dominant state; hatch = trend direction; thin black border = `with_mixed_features`). Dots above bars = individual post-level annotations, color-coded by post state.],
 ) <fig-user-timeline>
 
@@ -668,8 +668,6 @@ This study involves analysis of publicly posted social media content discussing 
 *Data minimization.* The resource retains only the text content and timestamps necessary for mood state annotation. Author usernames are replaced with anonymized identifiers; subreddit membership and post metadata that could facilitate re-identification are excluded from the published dataset.
 
 *Intended use.* The resource is intended solely for computational mental health research. It must not be used for re-identification of individuals, commercial profiling, or clinical decision-making without appropriate expert oversight.
-
-#pagebreak()
 
 // Appendix uses letter numbering per LNCS convention
 #set heading(numbering: (..nums) => {
