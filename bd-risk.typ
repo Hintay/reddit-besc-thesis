@@ -28,7 +28,7 @@
 
 = Introduction
 
-Bipolar disorder (BD) is characterized by recurrent episodes of mania, hypomania, and depression, affecting 1--2% of the global population @grande2016bipolar. An estimated 17--50% of BD cases are initially misdiagnosed as major depressive disorder (MDD), because patients typically seek help during depressive episodes and may not recognize manic or hypomanic states as pathological @hirschfeld2003misdiagnosis @vieta2018misdiagnosis. This misdiagnosis leads to inappropriate treatment (e.g., antidepressant monotherapy, which may trigger manic switching) and delays proper intervention.
+Bipolar disorder (BD) is characterized by recurrent episodes of mania, hypomania, and depression, affecting 1--2% of the global population @grande2016bipolar. An estimated 17--50% of BD cases are initially misdiagnosed as major depressive disorder (MDD), because patients typically seek help during depressive episodes and may not recognize manic or hypomanic states as pathological @hirschfeld2002guideline @vieta2018misdiagnosis. This misdiagnosis leads to inappropriate treatment (e.g., antidepressant monotherapy, which may trigger manic switching) and delays proper intervention.
 
 Social media platforms such as Reddit host BD communities (e.g., r/bipolar, r/BipolarReddit) where users openly discuss symptoms, treatment, and daily functioning. Prior work has used these data for BD and MDD classification @cohan2018smhd @coppersmith2015clpsych @sekulic2018not, yet existing datasets provide only binary diagnosis labels (BD vs.~MDD) or user-level risk scores. Few resources offer post-level mood state labels tracked over time, which limits computational research on mood trajectories --- a capability important for understanding BD progression and identifying early intervention opportunities.
 
@@ -54,7 +54,7 @@ Clinical efforts to track BD mood trajectories rely heavily on ecological moment
 
 De Choudhury et al.~@dechoudhury2013predicting showed that social media signals can predict depression onset. The SMHD dataset @cohan2018smhd covers nine mental health conditions via self-reported diagnoses; Coppersmith et al.~@coppersmith2015clpsych established shared tasks for depression and PTSD detection from X (formerly Twitter).
 
-For BD, Sekuli\'c et al.~@sekulic2018not proposed Reddit-based classification and Jagfeld et al.~@jagfeld2021understanding compiled a large BD Reddit corpus; however, both rely on self-reported diagnoses without expert validation @harrigian2021state @stanton2020critical. The BD-Risk dataset @lee2024detecting provides per-post mood labels validated by a psychiatrist and a clinical psychologist; we use it as the gold standard for our post-level validation.
+For BD, Sekuli\'c et al.~@sekulic2018not proposed Reddit-based classification and Jagfeld et al.~@jagfeld2021understanding compiled a large BD Reddit corpus; however, both rely on self-reported diagnoses without expert validation @harrigian2021state @chancellor2020methods. The BD-Risk dataset @lee2024detecting provides per-post mood labels validated by a psychiatrist and a clinical psychologist; we use it as the gold standard for our post-level validation.
 
 == LLMs for Clinical NLP and Mental Health
 
@@ -290,7 +290,7 @@ The framework also supports a `with_mixed_features` specifier (following DSM-5 m
 
 === Period-Level Trend Analysis
 
-For longitudinal mood trajectory modeling, we partition each user's posting history into consecutive fixed-length periods (default: 14~days). The 14-day window length is informed by DSM-5 diagnostic criteria, which define a major depressive episode as lasting at least two weeks and a manic episode as lasting at least one week @apa2013dsm5; a 14-day window therefore captures the minimum duration of a full depressive episode and allows observation of manic episode onset and progression. Periods are anchored at the user's first post (day 0) and advance in strict half-open intervals $[t_(k), t_(k) + 14)$; submissions and comments are jointly assigned to the period containing their timestamp. All periods from the user's first to last post are defined; periods without posts receive a `NO_DATA` label rather than being skipped, preserving a continuous time grid for trajectory modeling. @fig-period-slicing illustrates the segmentation.
+For longitudinal mood trajectory modeling, we partition each user's posting history into consecutive fixed-length periods (default: 14~days). The 14-day window length was set in consultation with clinical advisors and is grounded in DSM-5 episode-duration criteria, which define a major depressive episode as lasting at least two weeks and a manic episode as lasting at least one week @apa2013dsm5; a 14-day window therefore captures the minimum duration of a full depressive episode and allows observation of manic-episode onset and progression. Periods are anchored at the user's first post (day 0) and advance in strict half-open intervals $[t_(k), t_(k) + 14)$; submissions and comments are jointly assigned to the period containing their timestamp. All periods from the user's first to last post are defined; periods without posts receive a `NO_DATA` label rather than being skipped, preserving a continuous time grid for trajectory modeling. @fig-period-slicing illustrates the segmentation.
 
 #figure(
   {
