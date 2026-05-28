@@ -558,14 +558,14 @@ This section characterizes six failure modes identified through manual analysis 
 
 = Longitudinal Demonstration: Period-Level Mood Trends <pilotsec>
 
-With post-level reliability confirmed, we turn to the period-level trend annotations. @fig-user-timeline shows the two-granularity annotation for four representative users selected to cover diverse BD presentations: each row is a user, colored bars represent 14-day periods (color = dominant state, hatch pattern = trend direction), and dots represent individual post-level state annotations.
+With post-level reliability confirmed, we turn to the period-level trend annotations. @fig-user-timeline shows the two-granularity annotation for four representative users covering diverse BD presentations.
 
 #figure(
-  image("fig_timeline.svg", width: 100%),
-  caption: [Mood trajectory visualization for four anonymized BD users with diverse clinical presentations. Colored bars represent 14-day periods (bar color = dominant state; hatch pattern = trend direction; the `with_mixed_features` specifier is drawn with a thin black border). Dots above each bar represent individual post-level state annotations, color-coded by post state. Users were selected to illustrate contrasting BD patterns: predominantly depressive with fluctuation (User A, 49 periods), hypomanic-leaning with frequent manic transitions (User B, 75 periods), manic-dominant with rapid cycling (User C, 37 periods), and dense posting with high mixed-features incidence (User D, 25 periods).],
+  image("fig_timeline.svg", width: 88%),
+  caption: [Mood trajectories for four anonymized users illustrating contrasting BD patterns (A: depressive with fluctuation, 49 periods; B: hypomanic-leaning with frequent manic transitions, 75 periods; C: manic-dominant with rapid cycling, 37 periods; D: dense posting with high mixed-features incidence, 25 periods). Bars = 14-day periods (color = dominant state; hatch = trend direction; thin black border = `with_mixed_features`). Dots above bars = individual post-level annotations, color-coded by post state.],
 ) <fig-user-timeline>
 
-@tab-trend-dist presents the distribution of trend directions across the annotated periods.
+@tab-trend-dist reports the distribution of trend directions across the annotated periods.
 
 #figure(
   table(
