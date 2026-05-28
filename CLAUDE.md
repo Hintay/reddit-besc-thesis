@@ -5,6 +5,7 @@
 - **No "but" as a conjunction.** Use "however", "yet", "while", "although", or restructure the sentence. Exceptions: direct quotations from other systems, and "not only...but also" fixed pattern.
 - **No colloquial expressions.** Avoid "apples-to-apples", "a lot", "pretty much", "kind of", "sort of", etc. Use formal alternatives ("directly comparable", "substantially", etc.).
 - **No contractions.** Write "cannot" not "can't", "does not" not "doesn't", etc.
+- **Use em-dashes sparingly.** Prefer parentheses for supplementary information, semicolons for joining related clauses, or restructure into separate sentences. Reserve em-dashes for a single strong interjection per paragraph at most.
 - **No informal "so" as a sentence connector.** Prefer "therefore", "thus", "consequently", or "accordingly" in formal argumentation. ", so" within a sentence is acceptable for causal clauses.
 - **Avoid absolute claims about gaps in prior work.** Do not write "None offer X" or "No work has done X" — these are hard to prove and reviewers may challenge them. Instead, emphasize the importance of the capability: "Few resources offer X, which limits..." or "Methods for X remain underdeveloped." Exception: factual statements about the absence of a specific gold-standard dataset (e.g., "No existing dataset provides expert-annotated period-level mood trajectories") are acceptable when used to explain methodological constraints, not to claim novelty.
 
