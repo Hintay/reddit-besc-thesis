@@ -14,6 +14,9 @@ build/*.pdf
 /bd-risk.pdf
 /bd-risk.zh.pdf
 /bd-risk-*.pdf
+# fig_timeline.pdf is a build by-product of paper_figures.py; only
+# fig_timeline.svg is referenced by the typst source and tracked.
+/fig_timeline.pdf
 
 # Python utility caches
 __pycache__/

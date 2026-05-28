@@ -15,10 +15,10 @@
     "username": "Senior-Breakfast6736",
     "figure_label": "User B",
     "archetype": "Hypomanic-leaning with frequent transitions toward mania",
-    "n_periods": 75,
+    "n_periods": 74,
     "span": "2023-02-06 ~ 2026-06-08",
-    "states": {"STABLE": 43, "HYPOMANIC": 18, "DEPRESSIVE": 10, "UNCERTAIN": 3, "MANIC": 1},
-    "trends": {"NO_TREND": 50, "TOWARDS_MANIA": 16, "TOWARDS_DEPRESSION": 5, "FLUCTUATING": 4},
+    "states": {"STABLE": 43, "HYPOMANIC": 17, "DEPRESSIVE": 10, "UNCERTAIN": 3, "MANIC": 1},
+    "trends": {"NO_TREND": 50, "TOWARDS_MANIA": 15, "TOWARDS_DEPRESSION": 5, "FLUCTUATING": 4},
     "mixed_features_count": 4
   },
   {
@@ -26,10 +26,10 @@
     "username": "bipolarqueer22",
     "figure_label": "User C",
     "archetype": "Manic-dominant with frequent fluctuation and mixed features",
-    "n_periods": 37,
+    "n_periods": 36,
     "span": "2023-05-25 ~ 2026-04-23",
-    "states": {"MANIC": 13, "DEPRESSIVE": 8, "HYPOMANIC": 7, "STABLE": 5, "UNCERTAIN": 4},
-    "trends": {"NO_TREND": 17, "FLUCTUATING": 11, "TOWARDS_MANIA": 6, "TOWARDS_DEPRESSION": 3},
+    "states": {"MANIC": 13, "DEPRESSIVE": 7, "HYPOMANIC": 7, "STABLE": 5, "UNCERTAIN": 4},
+    "trends": {"NO_TREND": 17, "FLUCTUATING": 10, "TOWARDS_MANIA": 6, "TOWARDS_DEPRESSION": 3},
     "mixed_features_count": 3
   },
   {

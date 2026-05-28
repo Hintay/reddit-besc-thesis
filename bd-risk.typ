@@ -558,7 +558,7 @@ This section characterizes six failure modes identified through manual analysis 
 
 #figure(
   image("fig_timeline.svg", width: 100%),
-  caption: [Mood trajectories for four anonymized users (A: depressive with fluctuation, 49 periods; B: hypomanic-leaning with frequent manic transitions, 75 periods; C: manic-dominant with rapid cycling, 37 periods; D: dense posting with high mixed-features incidence, 25 periods). Bars = 14-day periods (color = dominant state; hatch = trend direction; thin black border = `with_mixed_features`); dots above bars = post-level annotations, color-coded by post state.],
+  caption: [Mood trajectories for four anonymized users (A: depressive with fluctuation, 49 periods; B: hypomanic-leaning with frequent manic transitions, 74 periods; C: manic-dominant with rapid cycling, 36 periods; D: dense posting with high mixed-features incidence, 25 periods). Bars = 14-day periods (color = dominant state; hatch = trend direction; thin black border = `with_mixed_features`); dots above bars = post-level annotations, color-coded by post state.],
 ) <fig-user-timeline>
 
 #figure(
