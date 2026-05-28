@@ -421,7 +421,7 @@ Beyond the main BD-Risk holdout validation, we conduct two additional evaluation
 
 == Post-Level Validation Against BD-Risk <bdresultsec>
 
-We first validate the post-level state classification against BD-Risk expert labels. @tab-state-metrics presents per-class metrics; @tab-state-summary reports overall agreement.
+We first validate the post-level state classification against BD-Risk expert labels (@tab-state-metrics: per-class metrics with macro-aggregated summary).
 
 #figure(
   table(
@@ -433,32 +433,16 @@ We first validate the post-level state classification against BD-Risk expert lab
       [*State*], [*Precision*], [*Recall*], [*F1*], [*Support*],
     ),
     table.hline(stroke: 0.5pt),
-    [Depressive],  [0.630], [*0.879*], [*0.734*], [58],
-    [Stable],      [0.659], [0.784], [0.716], [37],
-    [Hypomanic],   [*0.833*], [0.357], [0.500], [28],
-    [Manic],       [*1.000*], [0.067], [0.125], [15],
-    table.hline(),
-  ),
-  caption: [Per-class state classification metrics on the held-out subset (n=145, excluding 7 Uncertain outputs). Manic precision is 1.0 because the single Manic prediction the LLM emitted was correct; recall (0.067) reflects that 14 of 15 gold-Manic posts were classified into another category.],
-) <tab-state-metrics>
-
-#figure(
-  table(
-    columns: 2,
-    align: (left, right),
-    stroke: none,
-    table.hline(),
-    table.header([*Metric*], [*Value*]),
+    [Depressive],     [0.630],   [*0.879*], [*0.734*], [58],
+    [Stable],         [0.659],   [0.784],   [0.716],   [37],
+    [Hypomanic],      [*0.833*], [0.357],   [0.500],   [28],
+    [Manic],          [*1.000*], [0.067],   [0.125],   [15],
     table.hline(stroke: 0.5pt),
-    [Accuracy (excl. Uncertain)], [65.9%],
-    [Accuracy (incl. Uncertain)], [62.8%],
-    [Macro F1], [0.519],
-    [Macro Precision], [0.781],
-    [Macro Recall], [0.522],
+    [_Macro avg_],    [_0.781_], [_0.522_], [_0.519_], [_138_],
     table.hline(),
   ),
-  caption: [Overall state classification summary on the held-out subset (n=145). Macro F1 (rather than overall accuracy) is the primary metric because the held-out subset is intentionally stratified.],
-) <tab-state-summary>
+  caption: [Per-class state classification metrics with macro-aggregated summary on the held-out subset (n=145; 138 after excluding 7 Uncertain outputs). Accuracy excluding Uncertain = 65.9 %; including Uncertain = 62.8 %. Macro F1 (rather than overall accuracy) is the primary metric because the held-out subset is intentionally stratified. Manic precision is 1.0 because the single Manic prediction the LLM emitted was correct; recall (0.067) reflects that 14 of 15 gold-Manic posts were classified into another category.],
+) <tab-state-metrics>
 
 Depressive recall is high (87.9%) and Stable recall is moderate (78.4%), while Hypomanic and Manic recall remain low (35.7% and 6.7%), indicating that the LLM correctly recognizes most depressive-pole and stable-pole posts while missing a majority of manic-pole cases. The confusion matrix (@tab-state-cm) makes the dominant error flow explicit: among the 30 gold-Hypomanic posts, 12 are predicted as Depressive and 6 as Stable; among the 15 gold-Manic posts, 11 are predicted as Depressive and 2 as Stable. The Manic-to-Depressive error flow is a recurring pattern with a likely label-text origin that we discuss in @discussionsec.
 
