@@ -1,0 +1,30 @@
+# Typst build cache
+*.aux
+*.log
+.typst-cache/
+
+# Generated PDFs live under build/ which is recreated by compile;
+# track the source (.typ) and re-build instead of committing artefacts.
+# Use `python scripts/build.py` (or `uv run python scripts/build.py`)
+# so output always lands in build/. The defensive root-level patterns
+# below also catch the case where someone runs `typst compile bd-risk.typ`
+# without an explicit output path — typst would otherwise drop the PDF
+# next to the source.
+build/*.pdf
+/bd-risk.pdf
+/bd-risk.zh.pdf
+/bd-risk-*.pdf
+
+# Python utility caches
+__pycache__/
+*.py[oc]
+
+# Environment-specific
+.venv/
+.env
+
+# Prompts mirrored from the engineering repo by scripts/build.py.
+# The canonical copies live at MOODTRAIL_REPO/prompts/; we sync at
+# build time so the typ appendix's `read("prompts/...")` resolves
+# inside the project root without committing duplicate content.
+/prompts/

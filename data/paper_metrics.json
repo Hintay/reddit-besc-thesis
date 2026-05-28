@@ -1,0 +1,174 @@
+{
+  "filter": {
+    "prompt_version": "improved_v6",
+    "subset": "holdout",
+    "model_version": null
+  },
+  "dataset_summary": {
+    "total_posts_validated": 145,
+    "mdd_count": 51,
+    "mdd_to_bd_count": 94
+  },
+  "state_classification": {
+    "total_pairs": 145,
+    "valid_pairs_excl_uncertain": 138,
+    "uncertain_count": 7,
+    "overall_accuracy_excl_uncertain": 0.6594,
+    "overall_accuracy_incl_uncertain": 0.6276,
+    "macro_f1": 0.5187,
+    "weighted_f1": 0.6154,
+    "macro_precision": 0.7805,
+    "macro_recall": 0.5217,
+    "cohens_kappa": 0.4755,
+    "cohens_kappa_linear_weighted": 0.3833,
+    "per_state": {
+      "DEPRESSIVE": {
+        "precision": 0.6296,
+        "recall": 0.8793,
+        "f1": 0.7338,
+        "support": 58.0
+      },
+      "STABLE": {
+        "precision": 0.6591,
+        "recall": 0.7838,
+        "f1": 0.716,
+        "support": 37.0
+      },
+      "HYPOMANIC": {
+        "precision": 0.8333,
+        "recall": 0.3571,
+        "f1": 0.5,
+        "support": 28.0
+      },
+      "MANIC": {
+        "precision": 1.0,
+        "recall": 0.0667,
+        "f1": 0.125,
+        "support": 15.0
+      }
+    },
+    "confusion_matrix_labels": [
+      "DEPRESSIVE",
+      "STABLE",
+      "HYPOMANIC",
+      "MANIC"
+    ],
+    "confusion_matrix": [
+      [
+        51,
+        7,
+        0,
+        0
+      ],
+      [
+        7,
+        29,
+        1,
+        0
+      ],
+      [
+        12,
+        6,
+        10,
+        0
+      ],
+      [
+        11,
+        2,
+        1,
+        1
+      ]
+    ],
+    "confusion_matrix_with_uncertain_labels": [
+      "DEPRESSIVE",
+      "STABLE",
+      "HYPOMANIC",
+      "MANIC",
+      "UNCERTAIN"
+    ],
+    "confusion_matrix_with_uncertain": [
+      [
+        51,
+        7,
+        0,
+        0,
+        2
+      ],
+      [
+        7,
+        29,
+        1,
+        0,
+        3
+      ],
+      [
+        12,
+        6,
+        10,
+        0,
+        2
+      ],
+      [
+        11,
+        2,
+        1,
+        1,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ]
+  },
+  "mood_label": null,
+  "subgroup": {
+    "MDD": {
+      "total": 51,
+      "state_accuracy": 0.8776,
+      "mood_exact_match": 0,
+      "mood_exact_acc": 0,
+      "mood_within_one": 0,
+      "mood_within_one_acc": 0,
+      "mood_mae": 0.0,
+      "mood_mean_bias": 0.0
+    },
+    "MDD_to_BD": {
+      "total": 94,
+      "state_accuracy": 0.5393,
+      "mood_exact_match": 0,
+      "mood_exact_acc": 0,
+      "mood_within_one": 0,
+      "mood_within_one_acc": 0,
+      "mood_mae": 0.0,
+      "mood_mean_bias": 0.0
+    }
+  },
+  "uncertain": {
+    "count": 7,
+    "percentage": 4.83,
+    "by_expert_state": {
+      "STABLE": 3,
+      "DEPRESSIVE": 2,
+      "HYPOMANIC": 2
+    },
+    "by_expert_mood": {
+      "-2": 2,
+      "0": 3,
+      "2": 2
+    },
+    "by_group": {
+      "MDD": 2,
+      "MDD_to_BD": 5
+    }
+  },
+  "outlier_patterns": {
+    "total_outliers": 0,
+    "outlier_rate": 0,
+    "manic_hypomanic_to_depressive": 0,
+    "depressive_to_stable_or_uncertain": 0
+  }
+}

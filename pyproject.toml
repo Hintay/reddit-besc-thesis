@@ -1,0 +1,8 @@
+[project]
+name = "thesis"
+version = "0.1.0"
+description = "MoodTrail-BD paper sources"
+requires-python = ">=3.11"
+dependencies = [
+    "pymupdf>=1.27.2.3",
+]
