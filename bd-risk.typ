@@ -554,14 +554,12 @@ This section characterizes six failure modes identified through manual analysis 
 
 = Longitudinal Demonstration: Period-Level Mood Trends <pilotsec>
 
-With post-level reliability confirmed, we turn to the period-level trend annotations. @fig-user-timeline shows the two-granularity annotation for four representative users covering diverse BD presentations.
+@fig-user-timeline illustrates the two-granularity annotation for four representative BD presentations; @tab-pilot-dists then aggregates trend directions and dominant states across all annotated periods.
 
 #figure(
   image("fig_timeline.svg", width: 100%),
-  caption: [Mood trajectories for four anonymized users illustrating contrasting BD patterns (A: depressive with fluctuation, 49 periods; B: hypomanic-leaning with frequent manic transitions, 75 periods; C: manic-dominant with rapid cycling, 37 periods; D: dense posting with high mixed-features incidence, 25 periods). Bars = 14-day periods (color = dominant state; hatch = trend direction; thin black border = `with_mixed_features`). Dots above bars = individual post-level annotations, color-coded by post state.],
+  caption: [Mood trajectories for four anonymized users (A: depressive with fluctuation, 49 periods; B: hypomanic-leaning with frequent manic transitions, 75 periods; C: manic-dominant with rapid cycling, 37 periods; D: dense posting with high mixed-features incidence, 25 periods). Bars = 14-day periods (color = dominant state; hatch = trend direction; thin black border = `with_mixed_features`); dots above bars = post-level annotations, color-coded by post state.],
 ) <fig-user-timeline>
-
-@tab-pilot-dists reports the distributions of trend directions and dominant states across the annotated periods.
 
 #figure(
   grid(
@@ -600,7 +598,7 @@ With post-level reliability confirmed, we turn to the period-level trend annotat
       table.hline(),
     ),
   ),
-  caption: [Period-level distributions on the 105-user cohort ($n = 1794$). Left: trend directions (NO\_TREND = state maintained, FLUCTUATING = alternation, TOWARDS\_MANIA / TOWARDS\_DEPRESSION = progressive worsening); the NO\_TREND predominance is clinically expected, since most 14-day windows capture a single ongoing episode. Right: dominant states; the `with_mixed_features` specifier was applied to 84 periods (4.7%).],
+  caption: [Period-level distributions on the 105-user cohort ($n = 1794$). Left: trend directions (NO\_TREND = state maintained, FLUCTUATING = alternation, TOWARDS\_MANIA / TOWARDS\_DEPRESSION = worsening). Right: dominant states; `with_mixed_features` was applied to 84 periods (4.7%).],
 ) <tab-pilot-dists>
 
 Most 14-day windows show NO\_TREND, which is expected: a typical BD mood episode lasts weeks to months (depressive) or 1--4 weeks (manic) per DSM-5 @apa2013dsm5, so state transitions within a single 14-day window are infrequent. The TOWARDS\_DEPRESSION and TOWARDS\_MANIA trends, though rare, mark episode onset or escalation, which are the signals most relevant for early intervention.
