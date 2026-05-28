@@ -19,7 +19,7 @@
     ),
   ),
   abstract: [
-    Bipolar disorder (BD) is frequently misdiagnosed as major depressive disorder (MDD), and monitoring mood state _transitions_ over time is critical for timely intervention. Existing social media datasets for BD research typically provide only binary diagnostic labels or per-post mood scores; few capture mood trajectories, i.e., the temporal dynamics of state transitions that define BD clinically. Because constructing expert-annotated BD corpora is costly and fine-tuning requires scarce labeled data, we propose a few-shot prompt-based LLM method that requires no task-specific training: the annotation schema is grounded entirely in DSM-5 episode criteria and eight synthetic few-shot examples, making it directly applicable to other BD corpora. The method annotates social media posts at two granularities: per-post categorical mood state classification and 14-day period-level mood trend analysis. The latter captures dominant mood state, trend direction (stable, worsening toward mania or depression, or fluctuating), and clinical change points within each period, enabling computational modeling of mood trajectories that per-post labels alone cannot support. Implemented with Gemini 3.1 Pro, we apply the method to 105 self-identified BD users drawn from BD-focused subreddits (1,794 14-day periods, 2,642 submissions, 12,847 comments spanning April 2019 through May 2026) and observe mood distributions consistent with known BD epidemiology. Post-level state classification is externally validated against the BD-Risk dataset @lee2024detecting on a held-out, author-disjoint, stratified subset of 145 posts, achieving macro F1 of 0.519 with high depressive recall (87.9%) and lower manic-pole recall (35.7%/6.7%). Six clinically significant error patterns are characterized, and we identify a structural label-text consistency issue at the manic pole that bounds achievable per-post manic recall.
+    Bipolar disorder (BD) is frequently misdiagnosed as major depressive disorder (MDD), and monitoring mood state _transitions_ over time is critical for timely intervention. Existing social media datasets for BD research typically provide only binary diagnostic labels or per-post mood scores; few capture mood trajectories. Because constructing expert-annotated BD corpora is costly and fine-tuning requires scarce labeled data, we propose a few-shot prompt-based LLM method that requires no task-specific training: the annotation schema is grounded entirely in DSM-5 episode criteria and eight synthetic few-shot examples, making it directly applicable to other BD corpora. The method annotates social media posts at two granularities: per-post categorical mood state classification and 14-day period-level mood trend analysis. The latter captures dominant mood state, trend direction (stable, worsening toward mania or depression, or fluctuating), and clinical change points within each period, enabling computational modeling of mood trajectories that per-post labels alone cannot support. Implemented with Gemini 3.1 Pro, we apply the method to 105 self-identified BD users drawn from BD-focused subreddits (1,794 14-day periods, 2,642 submissions, 12,847 comments spanning April 2019 through May 2026) and observe mood distributions consistent with known BD epidemiology. Post-level state classification is externally validated against the BD-Risk dataset @lee2024detecting on a held-out, author-disjoint, stratified subset of 145 posts, achieving macro F1 of 0.519 with high depressive recall (87.9%) and lower manic-pole recall (35.7%/6.7%). Six clinically significant error patterns are characterized, and we identify a structural label-text consistency issue at the manic pole that bounds achievable per-post manic recall.
   ],
   keywords: ("Bipolar Disorder", "Large Language Models", "Few-Shot Prompting", "Social Media", "Clinical NLP", "Mood Trajectory"),
   bibliography: bibliography("refs.bib"),
@@ -67,7 +67,7 @@ Our work differs from these evaluations in that we do not predict diagnosis. Ins
 
 == Method Overview <resourcesec>
 
-We construct a longitudinal mood-state-labeled corpus by applying the proposed method to Reddit data from users who self-identify as having a BD diagnosis in BD-focused subreddits. The pipeline produces annotations at two temporal granularities: (1) per-post mood state classification and (2) 14-day period-level mood trend analysis. @fig-pipeline illustrates the end-to-end flow from data collection through LLM-based annotation.
+We apply the proposed method to Reddit data from users who self-identify as having a BD diagnosis in BD-focused subreddits, producing a longitudinal mood-state-labeled corpus at two temporal granularities (per-post state and 14-day period-level trend). @fig-pipeline shows the end-to-end flow from data collection through LLM-based annotation.
 
 #figure(
   {
@@ -274,7 +274,7 @@ We construct a longitudinal mood-state-labeled corpus by applying the proposed m
 
 == Annotation Schema <frameworksec>
 
-Our annotation schema draws on DSM-5 episode definitions @apa2013dsm5, operationalizing them as a structured prompting framework for LLM-based annotation. The schema described below was developed alongside an error analysis against external expert labels (see @errorsec) that characterizes its known failure modes. It produces annotations at two temporal granularities:
+Our annotation schema draws on DSM-5 episode definitions @apa2013dsm5, operationalizing them as a structured prompting framework for LLM-based annotation.
 
 === Post-Level State Classification
 
@@ -355,7 +355,7 @@ For each period containing at least one post, the LLM analyzes the collected pos
 - *Trend summary:* A concise narrative describing the period's emotional trajectory and the evidence supporting the dominant state.
 - *DSM-5 specifiers:* `with_mixed_features` when opposite-pole symptoms co-occur simultaneously within the period (as distinguished from sequential fluctuation).
 
-Together, post-level states and period-level trends support event-level analysis (e.g., what preceded a state change) and longitudinal trajectory modeling (e.g., predicting the next period's dominant state from the current sequence). The explicit change-point fields additionally support change-point detection analyses @truong2020selective at the textual level.
+Together, the two granularities support both event-level analysis (e.g., what preceded a state change) and longitudinal trajectory modelling, with the explicit change-point fields enabling change-point detection @truong2020selective at the textual level.
 
 === Few-Shot Example Construction <fewshotsec>
 
@@ -366,8 +366,6 @@ The post-level prompt is paired with eight synthetic few-shot examples (labeled 
 We use Gemini 3.1 Pro through the official API with structured JSON output, selected for its large context window and native structured-output generation. Each post is processed independently with the full annotation schema and the few-shot examples described above as system instruction; the model returns a JSON object with `state`, `opposite_pole_symptoms`, `specifiers`, `confidence` (High/Medium/Low), and `reasoning` fields, where `opposite_pole_symptoms` carries the explicit evidence list required before `with_mixed_features` can be assigned (see @frameworksec). For period-level annotation the LLM additionally returns `trend_direction`, `change_points`, and a `trend_summary` narrative, with `confidence` on a 0--1 scale. Temperature is the default; the model is not fine-tuned.
 
 == External Validation Against BD-Risk <validsec>
-
-To establish the quality of the post-level state classification, we validate it against the BD-Risk dataset @lee2024detecting.
 
 === The BD-Risk Dataset
 
@@ -470,9 +468,7 @@ These Hypomanic errors are concentrated on gold $+$2 posts whose manic-side acti
 
 == The Uncertain Label as Quality Control
 
-The LLM output Uncertain for 7 posts (4.8%), abstaining when post content was insufficient for state assessment. The non-zero rate reflects the prompt's explicit instruction to abstain on truly uninterpretable content rather than force a best-effort guess.
-
-The Uncertain label serves as a quality filter preventing forced labeling when evidence is insufficient. The Uncertain emissions in the held-out evaluation are distributed across gold classes (2 Depressive, 3 Stable, 2 Hypomanic, 0 Manic), with no strong concentration on a single pole.
+The LLM output Uncertain for 7 posts (4.8%), abstaining when post content was insufficient for state assessment, in line with the prompt's explicit instruction to prefer abstention over a forced best-effort guess. Uncertain emissions are distributed across gold classes (2 Depressive, 3 Stable, 2 Hypomanic, 0 Manic), with no strong concentration on a single pole.
 
 == Schema Contribution: Comparison with a Zero-Shot Baseline
 
@@ -537,7 +533,7 @@ To probe whether the schema generalizes beyond Gemini, we additionally evaluated
   caption: [Cross-model comparison on the 42 non-refused posts (of 145 held-out). The subset is GPT-5.5's content-policy survivors, selectively excluding depressive-crisis posts; the remaining 103 posts (71%) are unlabeled by GPT-5.5 and excluded. GPT-5.5 reaches higher macro F1, driven mostly by Manic F1 (2/4 vs. Gemini 1/4).],
 ) <tab-crossmodel>
 
-*Interpretation.* When GPT-5.5 does respond, the schema produces sensible structured output, confirming it is not Gemini-specific in spirit. The head-to-head numbers favor GPT-5.5 on the non-refused subset, yet the subset selection itself is the dominant effect: GPT-5.5 systematically filtered out the hard depressive-crisis posts that drive most of Gemini's error rate on the full held-out, so the macro-F1 comparison overstates GPT-5.5's effective competence on a clinical mental-health corpus. Most important in practice, *production safety filters can render an LLM unsuitable as an annotator for psychiatric corpora*: a 71% refusal rate makes GPT-5.5 infeasible as a stand-alone annotator regardless of intrinsic capability. The choice of LLM provider has annotation-feasibility consequences beyond accuracy.
+*Interpretation.* When GPT-5.5 does respond, the schema produces sensible structured output, confirming it is not Gemini-specific in spirit. The head-to-head numbers favor GPT-5.5 on the non-refused subset, yet the subset selection itself is the dominant effect: GPT-5.5 systematically filtered out the hard depressive-crisis posts that drive most of Gemini's error rate on the full held-out, so the macro-F1 comparison overstates GPT-5.5's effective competence on a clinical mental-health corpus. Most important in practice, *production safety filters can render an LLM unsuitable as an annotator for psychiatric corpora*: a 71% refusal rate makes GPT-5.5 infeasible as a stand-alone annotator regardless of intrinsic capability.
 
 == Error Analysis <errorsec>
 
@@ -666,9 +662,7 @@ This study involves analysis of publicly posted social media content discussing 
 
 *De-identification.* Before public release, all post content in the resource undergoes LLM-based de-identification. We classify personally identifiable information into five categories by identification risk: _identifiers_ (names that directly identify an individual), _quasi-identifiers_ (information that in combination could identify an individual, such as specific locations, organizations, dates, or unique personal circumstances), _contact information_, _linkage codes_, and _personal identification codes_. The LLM detects and replaces each PII span with a category-specific placeholder (e.g., `[IDENTIFIER]`, `[QUASI_ID]`). LLM-based de-identification can also detect long-span quasi-identifiers --- passages where the accumulation of individually innocuous details (occupation, location, family structure) could jointly narrow identification to a single individual --- that rule-based or traditional NER approaches may miss. All de-identified outputs undergo manual spot-checking to verify both detection coverage and preservation of clinically relevant content (medication names, diagnosis types, symptom descriptions, and relative temporal expressions are retained).
 
-*Data minimization.* The resource retains only the text content and timestamps necessary for mood state annotation. Author usernames are replaced with anonymized identifiers; subreddit membership and post metadata that could facilitate re-identification are excluded from the published dataset.
-
-*Intended use.* The resource is intended solely for computational mental health research. It must not be used for re-identification of individuals, commercial profiling, or clinical decision-making without appropriate expert oversight.
+*Data minimization and intended use.* The resource retains only text content and timestamps necessary for mood-state annotation; author usernames are replaced with anonymized identifiers, and subreddit membership and post metadata that could facilitate re-identification are excluded from the published dataset. The resource is intended solely for computational mental-health research and must not be used for re-identification, commercial profiling, or clinical decision-making without appropriate expert oversight.
 
 // Appendix uses letter numbering per LNCS convention
 #set heading(numbering: (..nums) => {
