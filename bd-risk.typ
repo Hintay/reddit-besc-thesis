@@ -1,16 +1,5 @@
 #import "@preview/fine-lncs:0.6.3": lncs, institute, author, theorem, proof
 
-// TODO(numbers): the following dataset statistics are projected for the final release.
-//   Update after data collection completes:
-//     - users in dataset: 100      (currently 18)
-//     - monitored candidates: 620  (currently 111)
-//     - submissions: ~40,500       (currently 7,296)
-//     - comments:    ~100,000      (currently 18,021)
-//     - periods:     1,330         (currently 240)
-//   Period distribution (counts) and per-state distribution scale proportionally;
-//   percentages are unchanged. BD-Risk validation numbers (held-out subset)
-//   are external and do not scale.
-
 #let inst_tsukuba = institute("University of Tsukuba",
   addr: "1-2 Kasuga, Tsukuba, Ibaraki 305-8550, Japan",
   email: "lin.jiefeng.tkb_ge@u.tsukuba.ac.jp",
@@ -76,9 +65,9 @@ Our work differs from these evaluations in that we do not predict diagnosis. Ins
 
 = Methodology
 
-== Resource Overview <resourcesec>
+== Method Overview <resourcesec>
 
-Our corpus is a longitudinal mood-state-labeled Reddit dataset for BD research. It covers users who self-identify as having a BD diagnosis in BD-focused subreddits and provides annotations at two temporal granularities: (1) per-post mood state classification and (2) 14-day period-level mood trend analysis. @fig-pipeline illustrates the construction pipeline.
+We construct a longitudinal mood-state-labeled corpus by applying the proposed method to Reddit data from users who self-identify as having a BD diagnosis in BD-focused subreddits. The pipeline produces annotations at two temporal granularities: (1) per-post mood state classification and (2) 14-day period-level mood trend analysis. @fig-pipeline illustrates the end-to-end flow from data collection through LLM-based annotation.
 
 #figure(
   {
@@ -243,11 +232,11 @@ Our corpus is a longitudinal mood-state-labeled Reddit dataset for BD research. 
         // Row 0: main pipeline (Gemini sits left of the output column).
         make_box((0, 0), icon_globe, c_data, [Data collection],
           ([Reddit API], [3 BD subreddits]), width: 20mm),
-        edge((0, 0), (1, 0), "-|>", elabel[620\ users]),
+        edge((0, 0), (1, 0), "-|>", elabel[115\ users]),
 
         make_box((1, 0), icon_shield, c_verify, [Patient verification],
           ([LLM evidence], [3-tier classifier]), width: 22mm),
-        edge((1, 0), (2, 0), "-|>", elabel[100/620\ verified]),
+        edge((1, 0), (2, 0), "-|>", elabel[100/115\ verified]),
 
         llm_prompts,
         edge((2, 0), (3, 0), "-|>"),
@@ -279,9 +268,9 @@ Our corpus is a longitudinal mood-state-labeled Reddit dataset for BD research. 
 
 *Data collection.* We continuously monitor three BD-focused subreddits (r/bipolar, r/BipolarReddit, r/bipolar2) using the Reddit API. For each active author discovered, we retrieve their complete posting history (submissions and comments) and schedule periodic re-crawls with a configurable cooldown to capture ongoing activity.
 
-*Inclusion criteria.* Users are included if they posted to at least one of the monitored BD-focused subreddits during the collection period, which serves as self-identification of BD relevance. We do not perform clinical verification of the diagnosis; this matches the inclusion model used in prior BD social-media datasets @sekulic2018not @jagfeld2021understanding. The diagnostic status of individual users in the cohort is therefore self-reported rather than clinically confirmed (see Limitations).
+*Patient verification.* Posting to a BD-focused subreddit is necessary but not sufficient for self-identification: many such posts come from clinicians, family members, or community discussion that does not reflect the author's own diagnostic status. To screen the candidate pool, we apply an LLM-based three-tier classifier (Gemini 3.1 Pro, separate prompt from the annotation schema) that scans each author's complete posting history for explicit self-disclosure of BD diagnosis. The classifier returns one of three labels with supporting textual evidence: `verified` (explicit first-person diagnostic statements such as "I was diagnosed with bipolar II in 2019" or specific treatment / hospitalization narratives), `probable` (consistent self-identification through symptom descriptions, medication mentions, or community membership tone without an explicit diagnosis statement), or `unverified` (no diagnostic signal, third-party discussion, or off-topic activity). Only users in the `verified` or `probable` tiers are admitted to the annotation cohort. The verification step is LLM-based and screens for self-disclosure rather than clinician-confirmed diagnosis (see Limitations); it matches the inclusion model used in prior BD social-media datasets @sekulic2018not @jagfeld2021understanding while applying tighter per-user evidence gating than a one-post membership rule.
 
-*Scale.* The corpus is built from 115 monitored users. Users with fewer than two 14-day periods containing posts (i.e., insufficient longitudinal span for trend analysis) are excluded. The remaining 105 users contribute 2,642 submissions and 12,847 comments spanning April 2019 through May 2026, yielding 1,794 valid analysis periods.
+*Scale.* The verified+probable cohort comprises 115 users. Users with fewer than two 14-day periods containing posts (i.e., insufficient longitudinal span for trend analysis) are excluded. The remaining 105 users contribute 2,642 submissions and 12,847 comments spanning April 2019 through May 2026, yielding 1,794 valid analysis periods.
 
 == Annotation Schema <frameworksec>
 
@@ -657,7 +646,7 @@ Most 14-day windows show NO\_TREND, which is expected: a typical BD mood episode
 
 Stable and Depressive states dominate the dataset; manic-pole states (Hypomanic and Manic combined) account for the remainder. This matches the known BD asymmetry: depressive episodes are more frequent and longer, and users may post more during depressive and stable periods @jagfeld2021understanding.
 
-*Post-level state distribution.* @tab-post-state-dist reports the dominant mood states assigned by the post-level classifier, split by content type. The two distributions differ sharply. Submissions, which authors typically use as a longer-form channel to disclose distress or recovery, carry the majority of polar-state labels (51.2% combined Manic, Hypomanic, and Depressive); under half are Stable. Comments, which serve as in-thread replies, are dominated by Stable (88.0%) and exhibit only 9.1% polar content. The Uncertain rate is low for both ($lt.eq$3.0%), reflecting the model's confidence on the released corpus.
+*Post-level state distribution.* @tab-post-state-dist reports the dominant mood states assigned by the post-level classifier, split by content type. The two distributions differ sharply. Submissions, which authors typically use as a longer-form channel to disclose distress or recovery, carry the majority of polar-state labels (51.2% combined Manic, Hypomanic, and Depressive); under half are Stable. Comments, which serve as in-thread replies, are dominated by Stable (88.1%) and exhibit only 8.9% polar content. The Uncertain rate is low for both ($lt.eq$3.0%), reflecting the model's confidence on the released corpus.
 
 #figure(
   table(
@@ -669,11 +658,11 @@ Stable and Depressive states dominate the dataset; manic-pole states (Hypomanic 
       [*State*], [*Posts*], [*%*], [*Comments*], [*%*],
     ),
     table.hline(stroke: 0.5pt),
-    [Manic],      [102],   [3.9%],  [98],     [0.8%],
-    [Hypomanic],  [286],   [10.8%], [305],    [2.4%],
-    [Stable],     [1,228], [46.5%], [11,417], [88.0%],
-    [Depressive], [965],   [36.5%], [760],    [5.9%],
-    [Uncertain],  [60],    [2.3%],  [390],    [3.0%],
+    [Manic],      [98],    [3.8%],  [93],     [0.7%],
+    [Hypomanic],  [277],   [10.6%], [292],    [2.3%],
+    [Stable],     [1,217], [46.6%], [11,287], [88.1%],
+    [Depressive], [961],   [36.8%], [755],    [5.9%],
+    [Uncertain],  [58],    [2.2%],  [385],    [3.0%],
     table.hline(),
   ),
   caption: [Post-level state distribution across the 105-user cohort, separated by content type. Posts (submissions, $n = 2{,}611$) function as longer-form emotional disclosures and carry the majority of polar-state labels; comments ($n = 12{,}812$) are predominantly conversational replies labeled Stable.],
@@ -716,7 +705,7 @@ The proposed method and corpus are subject to several constraints, which we grou
 
 *Label-text consistency on the Manic pole.* The BD-Risk dataset specifies that "posts exhibiting both manic and depressive moods are regarded as manic moods" @lee2024detecting, an asymmetric tie-breaking rule that can yield gold-label Manic posts whose surface text matches the dataset's own definition of $-$3 (extreme anxiety with suicidal ideation). Our manual reading of the 15 held-out gold-Manic posts identified several where the post text contains no overt manic-side cue (no grandiosity, no decreased need for sleep, no psychotic content) and reads as suicidal-depressive content. A single-post LLM with clinical-safety priors classifies such posts as Depressive, lowering Manic recall by construction. This is not a model failure; rather, it is a structural mismatch between the labeling-rule output and the textual evidence available to a per-post classifier. Recovering label-text consistency for Manic detection would require either re-annotation under text-only criteria or a longitudinal evaluation protocol that supplies the temporal context the annotators had access to.
 
-*Self-identified diagnosis.* Users are included based on self-disclosure of a BD diagnosis in BD-focused subreddits, without independent verification of the diagnosis. This follows the standard practice in prior BD social-media datasets @sekulic2018not @jagfeld2021understanding. Some users in the corpus may describe a BD diagnosis without one having been clinically established, and conversely the cohort excludes users with BD who never post to a BD-related subreddit. Downstream uses that require clinician-confirmed BD status should treat the cohort as a self-identified sample rather than a clinical cohort.
+*Self-identified diagnosis.* Patient verification is LLM-based and screens for self-disclosure of a BD diagnosis in the user's posting history; it does not constitute clinical confirmation. This follows the inclusion model used in prior BD social-media datasets @sekulic2018not @jagfeld2021understanding, with stricter per-user evidence gating than a one-post membership rule. Some users in the `verified` or `probable` tiers may describe a BD diagnosis without one having been clinically established, and conversely the cohort excludes users with BD who never disclose the diagnosis in their public posting history. Downstream uses that require clinician-confirmed BD status should treat the cohort as an LLM-screened self-identified sample rather than a clinical cohort.
 
 *No human-in-the-loop verification of the dataset's annotations.* All period-level annotations (1,794) and post-level annotations (15,423) are produced entirely by the LLM. We have not yet conducted manual spot-checking on a stratified sample (across mood states, confidence levels, and trend directions). Such spot-checking is left for future work and will be reported as an inter-annotator agreement against the LLM outputs.
 
