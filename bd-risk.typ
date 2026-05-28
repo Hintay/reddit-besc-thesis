@@ -263,7 +263,7 @@ We construct a longitudinal mood-state-labeled corpus by applying the proposed m
       )
     ))
   },
-  caption: [Annotation pipeline. Users are continuously collected from three BD-focused subreddits and screened by a patient-verification step (LLM-evidence-based three-tier classifier). The verified cohort is then annotated by Gemini 3.1 Pro using two DSM-5-grounded prompts --- a single-post prompt and a 14-day trend prompt --- yielding structured JSON outputs at two temporal granularities: per-post states and 14-day period trends.],
+  caption: [Annotation pipeline: data collection (3 BD subreddits) $arrow$ LLM patient verification (three-tier classifier) $arrow$ Gemini 3.1 Pro annotation with two DSM-5-grounded prompts (single-post + 14-day trend) $arrow$ structured JSON outputs at the two temporal granularities.],
 ) <fig-pipeline>
 
 *Data collection.* We continuously monitor three BD-focused subreddits (r/bipolar, r/BipolarReddit, r/bipolar2) using the Reddit API. For each active author discovered, we retrieve their complete posting history (submissions and comments) and schedule periodic re-crawls with a configurable cooldown to capture ongoing activity.
@@ -340,7 +340,7 @@ For longitudinal mood trajectory modeling, we partition each user's posting hist
       cell(dots("S")),
     )
   },
-  caption: [Period segmentation for a single user (illustrative). Each box is a fixed 14-day window anchored to the user's first post (day 0). Submissions (filled circles) and comments (open circles) are jointly assigned to the period containing their timestamp. A period without posts (Period 3) is retained with a `NO_DATA` label rather than skipped, ensuring that downstream trajectory models see a continuous time grid.],
+  caption: [Period segmentation (illustrative): fixed 14-day windows anchored at the user's first post (day 0). Submissions (filled circles) and comments (open circles) fall in the period containing their timestamp; empty periods (Period 3) carry the `NO_DATA` label rather than being skipped.],
 ) <fig-period-slicing>
 
 For each period containing at least one post, the LLM analyzes the collected posts and produces:
@@ -441,7 +441,7 @@ We first validate the post-level state classification against BD-Risk expert lab
     [_Macro avg_],    [_0.781_], [_0.522_], [_0.519_], [_138_],
     table.hline(),
   ),
-  caption: [Per-class state classification metrics with macro-aggregated summary on the held-out subset (n=145; 138 after excluding 7 Uncertain outputs). Accuracy excluding Uncertain = 65.9 %; including Uncertain = 62.8 %. Macro F1 (rather than overall accuracy) is the primary metric because the held-out subset is intentionally stratified. Manic precision is 1.0 because the single Manic prediction the LLM emitted was correct; recall (0.067) reflects that 14 of 15 gold-Manic posts were classified into another category.],
+  caption: [Per-class metrics with macro summary on the held-out subset (n=145; 138 excluding 7 Uncertain). Accuracy excl./incl. Uncertain = 65.9 % / 62.8 %; macro F1 is the primary metric because the subset is intentionally stratified. Manic precision is 1.0 (the single Manic prediction was correct); 14 of 15 gold-Manic posts were misclassified into another category.],
 ) <tab-state-metrics>
 
 Depressive recall is high (87.9%) and Stable recall is moderate (78.4%), while Hypomanic and Manic recall remain low (35.7% and 6.7%), indicating that the LLM correctly recognizes most depressive-pole and stable-pole posts while missing a majority of manic-pole cases. The confusion matrix (@tab-state-cm) makes the dominant error flow explicit: among the 30 gold-Hypomanic posts, 12 are predicted as Depressive and 6 as Stable; among the 15 gold-Manic posts, 11 are predicted as Depressive and 2 as Stable. The Manic-to-Depressive error flow is a recurring pattern with a likely label-text origin that we discuss in @discussionsec.
@@ -498,7 +498,7 @@ To quantify how much the structured annotation schema contributes beyond the LLM
     [MANIC F1],                   [0.000],   [*0.125*], [#text()[$+$0.125]],
     table.hline(),
   ),
-  caption: [Schema contribution on the held-out subset (n=145). Both runs use the same model (Gemini 3.1 Pro) and the same output JSON fields; the only variable is the system prompt. The zero-shot prompt is a minimal task definition with no clinical rules; the full schema includes SAFETY OVERRIDE, Severity Descriptors, Clinical Guidance sections, and eight synthetic few-shot examples.],
+  caption: [Schema contribution on the held-out subset (n=145). Both runs use Gemini 3.1 Pro with the same JSON output; the only variable is the system prompt (zero-shot: task definition only; full schema: SAFETY OVERRIDE, Severity Descriptors, Clinical Guidance, eight few-shot examples).],
 ) <tab-zeroshot>
 
 Three observations frame the schema's value. First, the largest single effect is a **4$times$ reduction in Uncertain emissions** (27 $arrow.r$ 7): the structured schema gives the LLM the vocabulary to commit to a label rather than abstain, which explains why the accuracy gain *including* Uncertain (+11.1 pp) is much larger than the gain *excluding* Uncertain (+2.3 pp). Second, **STABLE classification benefits the most** in per-class F1 (+0.116), driven by the Severity Descriptors' explicit "STABLE includes mild positive activation" rule that prevents the LLM from defaulting non-pathological positive posts to DEPRESSIVE or UNCERTAIN. Third, **DEPRESSIVE and HYPOMANIC F1 are essentially unchanged**, suggesting the LLM already handles those categories competently from base capability alone, and **MANIC remains poorly recalled in both runs** (0/15 zero-shot vs. 1/15 schema, counting Uncertain as incorrect), confirming that the manic-pole limitation is structural (label-text consistency, @discussionsec) rather than something a richer prompt can repair.
@@ -534,7 +534,7 @@ To probe whether the schema generalizes beyond Gemini, we additionally evaluated
     [Uncertain emissions],            [2],      [*1*],
     table.hline(),
   ),
-  caption: [Cross-model comparison on the 42 posts GPT-5.5 accepted (out of 145 held-out). GPT-5.5 reaches a higher macro F1, driven mostly by Manic F1 (2 of 4 correct vs. 1 of 4 for Gemini). The result is *not* a clean head-to-head: the 42-post subset is the post set that survived GPT-5.5's content-policy filter, which selectively excluded depressive-crisis posts. The remaining 103 posts (71% of the held-out set) are unlabeled by GPT-5.5 and excluded from this table.],
+  caption: [Cross-model comparison on the 42 non-refused posts (of 145 held-out). The subset is GPT-5.5's content-policy survivors, selectively excluding depressive-crisis posts; the remaining 103 posts (71%) are unlabeled by GPT-5.5 and excluded. GPT-5.5 reaches higher macro F1, driven mostly by Manic F1 (2/4 vs. Gemini 1/4).],
 ) <tab-crossmodel>
 
 *Interpretation.* When GPT-5.5 does respond, the schema produces sensible structured output, confirming it is not Gemini-specific in spirit. The head-to-head numbers favor GPT-5.5 on the non-refused subset, yet the subset selection itself is the dominant effect: GPT-5.5 systematically filtered out the hard depressive-crisis posts that drive most of Gemini's error rate on the full held-out, so the macro-F1 comparison overstates GPT-5.5's effective competence on a clinical mental-health corpus. Most important in practice, *production safety filters can render an LLM unsuitable as an annotator for psychiatric corpora*: a 71% refusal rate makes GPT-5.5 infeasible as a stand-alone annotator regardless of intrinsic capability. The choice of LLM provider has annotation-feasibility consequences beyond accuracy.
