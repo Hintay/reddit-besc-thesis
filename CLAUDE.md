@@ -23,4 +23,4 @@
 - Do not cite Japanese-language papers in international conference submissions.
 - Appendix sections use A-Z numbering (A, B, C), not numeric (9.1, 9.2).
 - Table headers that are too wide should use multi-row format.
-- Twitter should be written as "Twitter (currently X)" on first mention, then "X" thereafter.
+- Refer to the platform as "X (formerly Twitter)" on first mention, then "X" thereafter.
