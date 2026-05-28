@@ -274,7 +274,7 @@ We apply the proposed method to Reddit data from users who self-identify as havi
 
 == Annotation Schema <frameworksec>
 
-Our annotation schema draws on DSM-5 episode definitions @apa2013dsm5, operationalizing them as a structured prompting framework for LLM-based annotation.
+Our annotation schema draws on DSM-5 episode definitions @apa2013dsm5, operationalizing them as a structured prompting framework for LLM-based annotation. The rules below were developed iteratively against an error analysis on external expert labels (see @errorsec); each clinical-guidance rule named below is the schema's response to a recurring failure mode characterized there.
 
 === Post-Level State Classification
 
