@@ -19,7 +19,7 @@
     ),
   ),
   abstract: [
-    Bipolar disorder (BD) is frequently misdiagnosed as major depressive disorder, and monitoring mood-state _transitions_ over time is critical for timely intervention. Existing social media datasets for BD research typically provide only binary diagnostic labels or per-post mood scores; few capture mood trajectories. Because expert annotation is costly and fine-tuning requires scarce labeled data, we propose a few-shot prompt-based LLM method that requires no task-specific training. The annotation schema is grounded in DSM-5 episode criteria and accompanied by eight synthetic few-shot examples, making the method directly applicable to other BD corpora. The method labels posts at two granularities: per-post mood state and 14-day period-level trends (dominant state, trend direction, change points), enabling trajectory modeling that per-post labels alone cannot support. Using Gemini 3.1 Pro, we apply the method to 105 self-identified BD users on BD-focused subreddits (1,794 14-day periods, 15,423 posts and comments, April 2019--May 2026), observing depressive-pole predominance broadly consistent with clinical expectations for BD-related online discussion. Post-level classification is externally validated against the BD-Risk dataset @lee2024detecting on a held-out, author-disjoint, stratified subset of 145 posts, achieving macro F1 of 0.519 with high depressive recall (87.9%) and lower manic-pole recall (35.7%/6.7%). Six error patterns are characterized, including a structural label-text consistency issue at the manic pole that bounds achievable manic recall.
+    Bipolar disorder (BD) is frequently misdiagnosed as major depressive disorder, and monitoring mood-state _transitions_ over time is critical for timely intervention. Existing social media datasets for BD research typically provide only binary diagnostic labels or per-post mood scores; few capture mood trajectories. Because expert annotation is costly and fine-tuning requires scarce labeled data, we propose a few-shot prompt-based LLM method that requires no task-specific training. The annotation schema is grounded in DSM-5 episode criteria and accompanied by eight synthetic few-shot examples, making the method directly applicable to other BD corpora. The method labels posts at two granularities: per-post mood state and 14-day period-level trends (dominant state, trend direction, change points), enabling trajectory modeling that per-post labels alone cannot support. Post-level classification is externally validated against the BD-Risk dataset @lee2024detecting on a held-out, author-disjoint, stratified subset of 145 posts, achieving macro F1 of 0.519 with high depressive recall (87.9%) and lower manic-pole recall (35.7%/6.7%). Six error patterns are characterized, including a structural label-text consistency issue at the manic pole that bounds achievable manic recall. Using Gemini 3.1 Pro, we apply the method to 105 self-identified BD users on BD-focused subreddits (1,794 14-day periods, 15,423 posts and comments, April 2019--May 2026), observing depressive-pole predominance broadly consistent with clinical expectations for BD-related online discussion.
   ],
   keywords: ("Bipolar Disorder", "Large Language Models", "Few-Shot Prompting", "Social Media", "Clinical NLP", "Mood Trajectory"),
   bibliography: bibliography("refs.bib"),
@@ -67,7 +67,7 @@ Our work differs from these evaluations in that we do not predict diagnosis. Ins
 
 == Method Overview <resourcesec>
 
-We apply the proposed method to Reddit data from users who self-identify as having a BD diagnosis in BD-focused subreddits, producing a longitudinal mood-state-labeled corpus at two temporal granularities (per-post state and 14-day period-level trend). @fig-pipeline shows the end-to-end flow from data collection through LLM-based annotation.
+The proposed method takes as input a user's posting history from mental-health-related social media communities and produces mood-state annotations at two temporal granularities (per-post state and 14-day period-level trend). @fig-pipeline shows the end-to-end flow: candidate identification through LLM-based patient verification, followed by structured annotation with two DSM-5-grounded prompts.
 
 #figure(
   {
@@ -111,7 +111,7 @@ We apply the proposed method to Reddit data from users who self-identify as havi
 
     // Stage box: bold title on top (in the box's border color), icon
     // centered below, then small body lines.
-    let make_box(pos, icon_paths, color, title, body_lines, width: 22mm) = node(
+    let make_box(pos, icon_paths, color, title, body_lines, width: 22mm, name: none) = node(
       pos,
       {
         set par(first-line-indent: 0pt, leading: 0.4em, justify: false)
@@ -128,6 +128,7 @@ We apply the proposed method to Reddit data from users who self-identify as havi
       stroke: (paint: rgb(color), thickness: 0.8pt),
       corner-radius: 2pt,
       inset: 4pt,
+      name: name,
     )
 
     let elabel(body) = box(
@@ -140,7 +141,7 @@ We apply the proposed method to Reddit data from users who self-identify as havi
     // `justify: false` prevents single-word wrapped lines (e.g. "A.") from
     // being stretched to the box width, which would read as a left indent;
     // `hyphenate: false` blocks mid-word breaks like "rea-soning".
-    let prompt_subbox(header, task, rules, schema) = box(
+    let prompt_subbox(header, task, rules) = box(
       stroke: 0.45pt + rgb(c_annot),
       radius: 1.5pt,
       inset: 3pt,
@@ -150,9 +151,8 @@ We apply the proposed method to Reddit data from users who self-identify as havi
         set text(hyphenate: false)
         stack(dir: ttb, spacing: 2pt,
           align(center, text(weight: "bold", size: 6.5pt, fill: rgb(c_annot))[#header]),
-          align(left, text(size: 5.5pt, fill: luma(40))[• *Task:* #task]),
-          align(left, text(size: 5.5pt, fill: luma(40))[• *Rules:* #rules]),
-          align(left, text(size: 5.5pt, fill: luma(40))[• *Output schema:* #schema]),
+          align(left, text(size: 5.5pt, fill: luma(40))[• *Task:*\ #task]),
+          align(left, text(size: 5.5pt, fill: luma(40))[• *Rules:*\ #rules]),
         )
       },
     )
@@ -160,7 +160,7 @@ We apply the proposed method to Reddit data from users who self-identify as havi
     // The "LLM prompts" compound node wraps the two sub-boxes (A above B)
     // with a single dashed border so it reads as one stage.
     let llm_prompts = node(
-      (2, 0),
+      (1, 0),
       {
         set par(first-line-indent: 0pt, justify: false)
         set text(hyphenate: false)
@@ -170,31 +170,30 @@ We apply the proposed method to Reddit data from users who self-identify as havi
             columns: (1fr, 1fr),
             column-gutter: 3pt,
             prompt_subbox(
-              [A. Single-post prompt],
+              [Single-post prompt],
               [classify each post independently],
               [DSM-5, safety override, behavior over tone],
-              [state, opposite\_pole\_symptoms, specifiers, confidence, reasoning],
             ),
             prompt_subbox(
-              [B. 14-day trend prompt],
+              [14-day trend prompt],
               [analyze each 14-day period],
               [whole-period weighting, mixed features],
-              [dominant\_state, trend\_direction, change\_points, trend\_summary, confidence],
             ),
           ),
         )
       },
-      width: 56mm,
+      width: 40mm,
       fill: white,
       stroke: (paint: rgb(c_annot), thickness: 0.9pt, dash: "dashed"),
       corner-radius: 2pt,
-      inset: 4pt,
+      inset: 3pt,
+      name: <prompts>,
     )
 
     // JSON-style output box (monospace, code-like).
     // No inner background; JSON is left-aligned (raw lines inherit the
     // node's default centering otherwise, which looks like centered code).
-    let json_box(pos, color, title, fields, width: 32mm) = node(
+    let json_box(pos, color, title, fields, width: 32mm, name: none) = node(
       pos,
       {
         set par(first-line-indent: 0pt, leading: 0.4em, justify: false)
@@ -217,60 +216,53 @@ We apply the proposed method to Reddit data from users who self-identify as havi
       stroke: (paint: rgb(color), thickness: 0.8pt),
       corner-radius: 2pt,
       inset: 4pt,
+      name: name,
     )
 
     // The diagram's natural width exceeds the LNCS column, so we render it
     // at full size then scale uniformly to fit. `reflow: true` makes the
     // bounding box collapse to the scaled size (otherwise the surrounding
     // layout would still reserve the un-scaled width).
-    align(center, scale(x: 74%, y: 74%, reflow: true,
+    align(center, scale(x: 98%, y: 98%, reflow: true,
       diagram(
         spacing: (5mm, 2mm),
         edge-stroke: 0.6pt + black,
         mark-scale: 60%,
 
-        // Row 0: main pipeline (Gemini sits left of the output column).
-        make_box((0, 0), icon_globe, c_data, [Data collection],
-          ([Reddit API], [3 BD subreddits]), width: 20mm),
-        edge((0, 0), (1, 0), "-|>", elabel[124\ candidates]),
+        // Incoming arrow: user posting history feeds into the pipeline.
+        // Start far enough left so the arrow and label clear the verify box.
+        edge((-2, 0), <verify>, "-|>", elabel[user posting\ history], label-pos: 0.25),
 
-        make_box((1, 0), icon_shield, c_verify, [Patient verification],
-          ([LLM evidence], [3-tier classifier]), width: 22mm),
-        edge((1, 0), (2, 0), "-|>", elabel[115/124\ admitted]),
+        // Row 0: main pipeline.
+        make_box((0, 0), icon_shield, c_verify, [Patient verification],
+          ([LLM evidence], [3-tier classifier]), width: 16mm, name: <verify>),
+        edge(<verify>, <prompts>, "-|>", elabel[verified\ cohort], label-side: left),
 
         llm_prompts,
-        edge((2, 0), (3, 0), "-|>"),
+        edge(<prompts>, <gemini>, "-|>"),
 
-        make_box((3, 0), icon_brain, c_annot, [Gemini\ 3.1 Pro],
-          ([DSM-5-guided], [annotation]), width: 22mm),
+        make_box((2, 0), icon_brain, c_annot, [Gemini\ 3.1 Pro],
+          ([DSM-5-guided], [annotation]), width: 17mm, name: <gemini>),
 
-        // Brace-style fork from Gemini to the two outputs. The vertical
-        // spine sits at x=3.3 (not 3.5) so the arrow tips have visible
-        // length after fletcher clips them at the wide output boxes'
-        // left edges. Drawn as separate edges so fletcher renders the
-        // arrowheads at the output ends; outputs at rows ±0.55 to keep
-        // the vertical gap compact.
-        edge((3, 0), (3.3, 0), "-"),
-        edge((3.3, -0.55), (3.3, 0.55), "-"),
-        edge((3.3, -0.55), (4, -0.55), "-|>", mark-scale: 120%),
-        edge((3.3,  0.55), (4,  0.55), "-|>", mark-scale: 120%),
+        // Brace-style fork from Gemini to the two outputs.
+        // All fork coordinates are relative to <gemini> via (rel:, to:).
+        edge(<gemini>, (rel: (0.3, 0), to: <gemini>), "-"),
+        edge((rel: (0.3, -0.55), to: <gemini>), (rel: (0.3, 0.55), to: <gemini>), "-"),
+        edge((rel: (0.3, -0.55), to: <gemini>), <post-out>, "-|>", mark-scale: 120%),
+        edge((rel: (0.3,  0.55), to: <gemini>), <trend-out>, "-|>", mark-scale: 120%),
 
-        json_box((4, -0.55), c_post, [Post-level output],
-          ("state", "specifiers", "confidence", "reasoning"), width: 30mm),
+        json_box((3, -0.55), c_post, [Post-level output],
+          ("state", "specifiers", "confidence", "reasoning"), width: 29mm, name: <post-out>),
 
-        json_box((4, 0.55), c_trend, [Period-level output],
-          ("dominant_state", "trend_direction", "change_points", "trend_summary", "confidence"), width: 30mm),
+        json_box((3, 0.55), c_trend, [Period-level output],
+          ("dominant_state", "trend_direction", "change_points", "trend_summary", "confidence"), width: 29mm, name: <trend-out>),
       )
     ))
   },
-  caption: [Annotation pipeline: data collection (3 BD subreddits) $arrow$ LLM patient verification (three-tier classifier) $arrow$ Gemini 3.1 Pro annotation with two DSM-5-grounded prompts (single-post + 14-day trend) $arrow$ structured JSON outputs at the two temporal granularities.],
+  caption: [Annotation pipeline: user posting history $arrow$ LLM patient verification (three-tier classifier) $arrow$ Gemini 3.1 Pro annotation with two DSM-5-grounded prompts (single-post + 14-day trend) $arrow$ structured JSON outputs at the two temporal granularities.],
 ) <fig-pipeline>
 
-*Data collection.* We continuously crawl three BD-focused subreddits (r/bipolar, r/BipolarReddit, r/bipolar2) via the Reddit API, retrieving each active author's full posting history (submissions and comments) with periodic re-crawls to capture ongoing activity.
-
-*Patient verification.* Posting to a BD-focused subreddit is a necessary yet insufficient signal: many such posts come from clinicians, family members, or community discussion. To screen the candidate pool, we apply an LLM three-tier classifier (Gemini 3.1 Pro, separate prompt) that scans each author's full posting history and returns `verified` (explicit first-person diagnostic statements, e.g., "I was diagnosed with bipolar II in 2019", or specific treatment/hospitalization narratives), `probable` (consistent self-identification through symptoms, medication, or community-membership tone without an explicit diagnosis statement), or `unverified` (no diagnostic signal). Only the `verified` and `probable` tiers are admitted to the annotation cohort; this matches the inclusion model used in prior BD social-media datasets @sekulic2018not @jagfeld2021understanding with stricter per-user evidence gating than a one-post membership rule.
-
-*Scale.* The verified+probable cohort comprises 115 of 124 candidate authors. Users with fewer than two 14-day periods containing posts (i.e., insufficient longitudinal span for trend analysis) are excluded. The remaining 105 users contribute 2,611 submissions and 12,812 comments spanning April 2019 through May 2026, yielding 1,794 valid analysis periods.
+*Patient verification.* Posting to a mental-health-related subreddit is a necessary yet insufficient signal of a BD diagnosis: many such posts come from clinicians, family members, or community discussion. To screen the candidate pool, we apply an LLM three-tier classifier (Gemini 3.1 Pro, separate prompt) that scans each author's full posting history and returns `verified` (explicit first-person diagnostic statements, e.g., "I was diagnosed with bipolar II in 2019", or specific treatment/hospitalization narratives), `probable` (consistent self-identification through symptoms, medication, or community-membership tone without an explicit diagnosis statement), or `unverified` (no diagnostic signal). Only the `verified` and `probable` tiers are admitted to the annotation cohort; this matches the inclusion model used in prior BD social-media datasets @sekulic2018not @jagfeld2021understanding with stricter per-user evidence gating than a one-post membership rule.
 
 == Annotation Schema <frameworksec>
 
@@ -355,11 +347,9 @@ Together, the two granularities support both event-level analysis (e.g., what pr
 
 === Few-Shot Example Construction <fewshotsec>
 
-The post-level prompt is paired with eight synthetic few-shot examples (labeled A--H), written by the authors and never drawn from BD-Risk. Each exercises a schema rule targeting a failure mode observed during development (full analysis in @errorsec): A demonstrates _Behavior Over Tone_ on retrospective manic-side narration; B and~E demonstrate the _SAFETY OVERRIDE_ rule with its grandiose-mania exception; C and~D contrast _Improvement-Narrative_ against _Whole-Post Evidence Weighting_; F counters the default-to-_Uncertain_ tendency on short posts; G demonstrates the _Recurrent-Pattern Exception_ for substance-triggered hypomania; H exercises _Severity Descriptors_ for _Hypomanic_-vs-_Stable_ boundaries. Each example provides the input text with the full expected JSON output (including the `opposite_pole_symptoms` evidence list and reasoning), so the model observes both the target label and the evidence chain. The full texts are reproduced in the Appendix.
+The post-level prompt is paired with eight synthetic few-shot examples (labeled A--H), written by the authors and never drawn from BD-Risk. Each exercises a schema rule targeting a failure mode observed during development (full analysis in @errorsec): A demonstrates _Behavior Over Tone_ on retrospective manic-side narration; B and~E demonstrate the _SAFETY OVERRIDE_ rule with its grandiose-mania exception; C and~D contrast _Improvement-Narrative_ against _Whole-Post Evidence Weighting_; F counters the default-to-_Uncertain_ tendency on short posts; G demonstrates the _Recurrent-Pattern Exception_ for substance-triggered hypomania; H exercises _Severity Descriptors_ for _Hypomanic_-vs-_Stable_ boundaries. Each example provides the input text with the full expected JSON output (including the `opposite_pole_symptoms` evidence list and reasoning), so the model observes both the target label and the evidence chain. The full prompt texts are available in the supplementary repository (@appendix).
 
-== LLM Configuration
-
-We use Gemini 3.1 Pro @team2024gemini through the official API with structured JSON output; the model was selected for its large context window and native structured-output generation. Each post is processed independently with the full annotation schema and the few-shot examples described above as the system instruction; the model returns a JSON object with `state`, `opposite_pole_symptoms`, `specifiers`, `confidence` (High/Medium/Low), and `reasoning` fields, where `opposite_pole_symptoms` carries the explicit evidence list required before `with_mixed_features` can be assigned (see @frameworksec). For period-level annotation the LLM additionally returns `trend_direction`, `change_points`, and a `trend_summary` narrative, with `confidence` on a 0--1 scale. We use the Gemini 3.1 Pro default temperature of 1.0; the model is not fine-tuned.
+= Validation Experiments
 
 == External Validation Against BD-Risk <validsec>
 
@@ -390,8 +380,6 @@ The BD-Risk dataset provides only ordinal mood labels; categorical states are no
   caption: [Mapping from BD-Risk 7-point mood labels to derived gold states. This mapping treats $+$1 as within the normal positive range (Stable) rather than pathological activation.],
 ) <tab-mapping>
 
-#pagebreak()
-
 === Evaluation Set Construction
 
 The full BD-Risk dataset exhibits a heavily skewed mood distribution (88.9% of posts $lt.eq$ 0). Because the deployment task is BD risk detection rather than general mood classification, we deliberately oversample manic-pole posts so that per-class metrics on the underrepresented classes are computed with sufficient support.
@@ -411,10 +399,11 @@ Beyond the main BD-Risk holdout validation, we conduct two additional evaluation
 - *Zero-shot baseline comparison:* To quantify how much the structured annotation schema (DSM-5 rules, few-shot examples) contributes beyond the LLM's base capability, we re-evaluate the same model with a minimal zero-shot prompt containing only the task definition and output format.
 - *Cross-model feasibility probe:* To test whether the schema generalizes beyond a single LLM provider, we additionally evaluate the full schema with OpenAI's GPT-5.5, characterizing schema portability and the impact of provider-level content-policy differences on annotation feasibility.
 
+== LLM Configuration
 
-= Results <resultsec>
+We use Gemini 3.1 Pro @team2024gemini through the official API with structured JSON output; the model was selected for its large context window and native structured-output generation. Each post is processed independently with the full annotation schema and the few-shot examples described above as the system instruction; the model returns a JSON object with `state`, `opposite_pole_symptoms`, `specifiers`, `confidence` (High/Medium/Low), and `reasoning` fields, where `opposite_pole_symptoms` carries the explicit evidence list required before `with_mixed_features` can be assigned (see @frameworksec). For period-level annotation the LLM additionally returns `trend_direction`, `change_points`, and a `trend_summary` narrative, with `confidence` on a 0--1 scale. We use the Gemini 3.1 Pro default temperature of 1.0; the model is not fine-tuned.
 
-== Post-Level Validation Against BD-Risk <bdresultsec>
+== Validation Results <bdresultsec>
 
 We first validate the post-level state classification against BD-Risk expert labels (@tab-state-metrics: per-class metrics with macro-aggregated summary).
 
@@ -463,11 +452,13 @@ Depressive recall is high (87.9%) and Stable recall is moderate (78.4%), while H
 
 These _Hypomanic_ errors are concentrated on gold $+$2 posts whose manic-side activation is masked by negative tone, a pattern that the current prompt does not fully resolve.
 
-== The Uncertain Label as Quality Control
+== Interpretation of Validation Results
+
+=== The Uncertain Label as Quality Control
 
 The LLM assigned _Uncertain_ to 7 posts (4.8%), abstaining when post content was insufficient for state assessment, in line with the prompt's explicit instruction to prefer abstention over forced classification. _Uncertain_ emissions are distributed across gold classes (2 _Depressive_, 3 _Stable_, 2 _Hypomanic_, 0 _Manic_), with no strong concentration on a single pole.
 
-== Schema Contribution: Comparison with a Zero-Shot Baseline
+=== Schema Contribution: Comparison with a Zero-Shot Baseline
 
 Following the design in @evaldesignsec, we compare the full schema against a minimal zero-shot prompt on the held-out subset. The zero-shot prompt retains only the task definition (post $arrow.r$ one of five states) and the output JSON fields; all DSM-5 rules, _SAFETY OVERRIDE_, _Severity Descriptors_, and few-shot examples are removed. @tab-zeroshot reports the side-by-side metrics.
 
@@ -498,41 +489,15 @@ Three observations frame the schema's value. First, the largest single effect is
 
 The comparison suggests that the schema's primary contribution is _coverage and decisiveness_ (preventing abstention, anchoring border-class decisions) rather than raw classification accuracy on the cases the LLM is already confident about.
 
-== Cross-Model Annotation Feasibility
+=== Cross-Model Annotation Feasibility
 
 As a cross-model probe (@evaldesignsec), we evaluated the full schema with OpenAI's GPT-5.5 (`reasoning_effort = "high"`) on the same 145 held-out posts. The schema and JSON output format were identical to the main run; only the underlying model changed.
 
 *Refusal under content policy.* GPT-5.5 declined to classify 103 of 145 held-out posts (71.0%) with a verbatim refusal (`"I'm sorry, but I cannot assist with that request."`), concentrated on posts containing explicit self-harm or suicidal content, the safety-relevant subset that BD-Risk includes by clinical design and that the _SAFETY OVERRIDE_ rule is built to handle. The prompt's clinical-research framing did not overcome the refusal. Gemini 3.1 Pro produced structured output for all 145 posts under the same prompt.
 
-*Performance on the non-refused subset.* On the 42 posts GPT-5.5 did classify, both models score higher than on the full 145 because the subset is skewed away from depressive-crisis content (16 _Depressive_, 10 _Stable_, 12 _Hypomanic_, 4 _Manic_). @tab-crossmodel reports the head-to-head metrics.
+*Performance on the non-refused subset.* On the 42 posts GPT-5.5 did classify (skewed away from depressive-crisis content: 16 _Depressive_, 10 _Stable_, 12 _Hypomanic_, 4 _Manic_), it achieves macro F1 of 0.710 (Gemini: 0.649), driven primarily by higher Manic recall (2/4 vs.~1/4). The schema produces sensible structured output, suggesting it is not inherently Gemini-specific. However, the subset selection is the dominant effect: GPT-5.5 systematically filtered out the hard depressive-crisis posts that drive most of Gemini's error rate on the full held-out subset, so the macro-F1 comparison overstates GPT-5.5's effective competence. Most importantly, a 71% refusal rate renders GPT-5.5 infeasible as a stand-alone annotator for psychiatric corpora regardless of intrinsic capability.
 
-#figure(
-  table(
-    columns: 3,
-    align: (left, right, right),
-    stroke: none,
-    table.hline(),
-    table.header(
-      [*Metric (on 42 non-refused posts)*], [*Gemini*], [*GPT-5.5*],
-    ),
-    table.hline(stroke: 0.5pt),
-    [Accuracy (excl. Uncertain)],     [72.5%],  [*73.2%*],
-    [Macro F1],                       [0.649],  [*0.710*],
-    [Macro Precision],                [0.827],  [*0.838*],
-    [Macro Recall],                   [0.656],  [*0.679*],
-    [DEPRESSIVE F1],                  [*0.800*], [0.769],
-    [STABLE F1],                      [0.727],  [*0.737*],
-    [HYPOMANIC F1],                   [0.667],  [0.667],
-    [MANIC F1],                       [0.400],  [*0.667*],
-    [Uncertain emissions],            [2],      [*1*],
-    table.hline(),
-  ),
-  caption: [Cross-model comparison on the 42 non-refused posts (of 145 held-out). The subset selectively excludes depressive-crisis posts refused by GPT-5.5 (103 posts, 71%). GPT-5.5 reaches higher macro F1, driven mostly by Manic F1 (2/4 vs. Gemini 1/4).],
-) <tab-crossmodel>
-
-*Interpretation.* When GPT-5.5 does respond, the schema produces sensible structured output, suggesting it is not inherently Gemini-specific. The head-to-head numbers favor GPT-5.5 on the non-refused subset, yet the subset selection itself is the dominant effect: GPT-5.5 systematically filtered out the hard depressive-crisis posts that drive most of Gemini's error rate on the full held-out subset, so the macro-F1 comparison overstates GPT-5.5's effective competence on a clinical mental-health corpus. Most importantly, in the configuration tested here, production safety filters can render an LLM _unsuitable as an annotator for psychiatric corpora_: a 71% refusal rate makes GPT-5.5 infeasible as a stand-alone annotator regardless of intrinsic capability.
-
-== Error Analysis <errorsec>
+=== Error Analysis <errorsec>
 
 We characterize six failure modes identified through manual analysis of LLM-vs-BD-Risk disagreements on the development subset. For each pattern, we name the schema rule designed to mitigate it and note whether the rule resolves the pattern on the held-out subset or whether it remains a residual error. Manic-pole posts misclassified as depressive or stable remain the dominant residual failure mode (quantified in @bdresultsec).
 
@@ -550,6 +515,8 @@ We characterize six failure modes identified through manual analysis of LLM-vs-B
 
 
 = Longitudinal Demonstration: Period-Level Mood Trends <pilotsec>
+
+*Data collection.* We continuously crawl three BD-focused subreddits (r/bipolar, r/BipolarReddit, r/bipolar2) via the Reddit API, retrieving each active author's full posting history (submissions and comments) with periodic re-crawls to capture ongoing activity. After the patient verification described in @resourcesec, the verified+probable cohort comprises 115 of 124 candidate authors. Users with fewer than two 14-day periods containing posts (i.e., insufficient longitudinal span for trend analysis) are excluded. The remaining 105 users contribute 2,611 submissions and 12,812 comments spanning April 2019 through May 2026, yielding 1,794 valid analysis periods.
 
 #figure(
   image("fig_timeline.svg", width: 100%),
@@ -633,7 +600,7 @@ Most 14-day windows show NO\_TREND, as expected: DSM-5 episode-duration criteria
 
 The proposed method and corpus are subject to constraints that we group into evaluation scope, evaluation labels, manic-pole interpretability, cohort framing, and release-time reliability.
 
-*Evaluation scope.* The main BD-Risk validation reports a single annotator (Gemini 3.1 Pro); a complementary cross-model probe with GPT-5.5 (see @tab-crossmodel) suggests that the schema is not inherently Gemini-specific, yet GPT-5.5 cannot be used at scale under OpenAI's current content policy (71% refusal on the held-out subset), so the per-class numbers on the 145-post held-out subset should be read as Gemini-specific. The quantitative validation is also at the post level only, because few per-post expert-labeled BD datasets at sufficient scale are available for research use (BD-Risk was obtained through a formal data request and ethics review, and comparable shared-task corpora face similar access barriers); period-level trends, a key contribution of the method, are not externally validated.
+*Evaluation scope.* The main BD-Risk validation reports a single annotator (Gemini 3.1 Pro); a complementary cross-model probe with GPT-5.5 (macro F1 0.710 on 42 non-refused posts) suggests that the schema is not inherently Gemini-specific, yet GPT-5.5 cannot be used at scale under OpenAI's current content policy (71% refusal on the held-out subset), so the per-class numbers on the 145-post held-out subset should be read as Gemini-specific. The quantitative validation is also at the post level only, because few per-post expert-labeled BD datasets at sufficient scale are available for research use (BD-Risk was obtained through a formal data request and ethics review, and comparable shared-task corpora face similar access barriers); period-level trends, a key contribution of the method, are not externally validated.
 
 *Gold-state derivation.* Most importantly, gold states are derived from BD-Risk mood labels via a deterministic mapping (@tab-mapping) rather than being directly annotated by experts as categorical states. This mapping introduces imprecision: the boundary between adjacent categories is inherently uncertain (e.g., BD-Risk mood label $+$1 may reflect mild hypomania rather than stable mood), and the ordinal intensity score does not always correspond to a categorical clinical judgment (e.g., a recovery narrative within an ongoing depressive episode may receive a neutral mood score while remaining clinically depressive). Inter-expert agreement (Krippendorff's $alpha$ = 0.87) is measured at the ordinal level, and mapping to categorical states amplifies disagreement at boundaries. Consequently, some apparent misclassifications may reflect mapping artifacts, and the reported accuracy figures should be interpreted as lower bounds on the schema's true reliability.
 
@@ -647,7 +614,7 @@ The proposed method and corpus are subject to constraints that we group into eva
 
 The validation separates the proposed method's two failure sources: 87.9% depressive recall suggests that the schema captures dominant depressive-pole markers with reasonable coverage, while the 6.7% manic recall appears strongly influenced by a structural label-text consistency issue at the manic pole rather than by prompting alone (see @discussionsec). Because no external longitudinal ground truth exists at the period level, the corpus's 1,794 trajectories are validated only indirectly through their post-level constituents. Three near-term priorities follow: (1) expert annotation of period-level trends to enable direct longitudinal validation; (2) a stratified human-in-the-loop audit across mood states, confidence levels, and trend directions, reported as inter-annotator agreement; and (3) extending the cross-model probe (Anthropic Claude, open-weight reasoning models) beyond the single-vendor evaluation, currently constrained by the production-safety refusal pattern documented for GPT-5.5. The resulting corpus is intended for computational mental health research and should not be used as a clinical diagnostic tool.
 
-= Ethical Considerations
+= Ethical Considerations <ethicssec>
 
 This study involves analysis of publicly posted social media content discussing sensitive mental health experiences. The study protocol was reviewed and approved by the Research Ethics Committee of the University of Tsukuba (approval no.~25-188). We additionally adhere to Reddit's privacy policy and social media research ethics guidelines @harrigian2021state.
 
@@ -655,17 +622,20 @@ This study involves analysis of publicly posted social media content discussing 
 
 *Data minimization and intended use.* The dataset retains only text content and temporal information necessary for mood-state annotation; author usernames are replaced with anonymized identifiers, and subreddit membership and post metadata that could facilitate re-identification are excluded from the published dataset. To reduce search-based re-identification risk, released timelines use relative temporal offsets rather than exact posting times. Because LLM-based de-identification may miss residual quasi-identifiers, public release is conditioned on a pre-release privacy audit of a stratified sample. The dataset is intended solely for computational mental-health research and must not be used for re-identification, commercial profiling, or clinical decision-making without appropriate expert oversight.
 
-// Appendix uses letter numbering per LNCS convention
+// Appendix uses letter numbering per LNCS convention:
+// Level 1 ("Appendix") gets no number; level 2+ subsections get A, A.1, etc.
 #set heading(numbering: (..nums) => {
   let n = nums.pos()
-  if n.len() == 1 {
-    numbering("A", n.last())
+  if n.len() <= 1 {
+    none
   } else {
-    numbering("A.1", ..n)
+    numbering("A.1", ..n.slice(1))
   }
 })
 #counter(heading).update(0)
 
-= Appendix: Annotation Prompts <appendix>
+= Appendix
 
-Three system prompts drive the pipeline: (A) the post-level prompt with the full DSM-5-grounded schema, clinical guidance rules (_SAFETY OVERRIDE_, _Behavior Over Tone_, _Whole-Post Evidence Weighting_, _Improvement-Narrative_, _Substance vs.~Endogenous Mood_), mixed-features rules, and eight synthetic few-shot examples; (B) a minimal zero-shot baseline (task and output format only); and (C) the 14-day period-level trend prompt. The user message carries only the post texts. Full prompt texts, pipeline source, and evaluation scripts are released as an anonymous supplementary repository at #link("https://anonymous.4open.science/r/bd-state-annotation/").
+== Prompts and Supplementary Materials <appendix>
+
+Four system prompts drive the pipeline: (A) the post-level annotation prompt with the full DSM-5-grounded schema, clinical guidance rules (_SAFETY OVERRIDE_, _Behavior Over Tone_, _Whole-Post Evidence Weighting_, _Improvement-Narrative_, _Substance vs.~Endogenous Mood_), mixed-features rules, and eight synthetic few-shot examples; (B) the 14-day period-level trend prompt; (C) the patient verification prompt (three-tier classifier described in @resourcesec); and (D) the de-identification prompt used for PII removal before public release (@ethicssec). A minimal zero-shot variant of prompt~(A), containing only the task definition and output format, is used for the schema contribution comparison (@evaldesignsec). Full prompt texts, pipeline source, and evaluation scripts are released as an anonymous supplementary repository at #link("https://anonymous.4open.science/r/bd-state-annotation/").

@@ -17,7 +17,7 @@
 
 ## Paper Structure
 
-- **Every evaluation/validation in the Results section must be previewed in the Methods section.** If a subsection in Results reports an experiment (e.g., zero-shot baseline, cross-model probe), the Methods section must declare the intent and design of that experiment beforehand. The reader should never encounter a new experimental setup for the first time in Results. Exception: observational analyses of the main experiment's outputs (e.g., distribution of Uncertain labels) do not require a separate preview.
+- **Every evaluation/validation must be previewed before its results are reported.** If a subsection reports an experiment (e.g., zero-shot baseline, cross-model probe), an earlier subsection (typically Evaluation Design within Validation Experiments) must declare the intent and design of that experiment beforehand. The reader should never encounter a new experimental setup for the first time in a results subsection. Exception: observational analyses of the main experiment's outputs (e.g., distribution of Uncertain labels) do not require a separate preview.
 
 ## References & Formatting
 
