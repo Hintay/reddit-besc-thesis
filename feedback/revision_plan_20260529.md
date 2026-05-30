@@ -196,7 +196,7 @@ BERT (314 labelled, 全量)  🆕
 | # | 来源 | 页/时间 | 意见摘要 | 对应修改 | 新增? | 状态 |
 |---|---|---|---|---|---|---|
 | 1 | PDF | p1 | Gemini 3.1 Pro 结果移到 BD-Risk validation 后 | §一 摘要/引言调整 | 🆕 | ✅ 完成 |
-| 2 | PDF | p2 | 加 ModernBERT 微调 baseline | §二 全节 | 🆕 | 📌 待办 |
+| 2 | PDF | p2 | 加 ModernBERT 微调 baseline | §二 全节 | 🆕 | ✅ 完成 |
 | 3 | PDF | p4 | Data collection 移到 validation 后、出方法节 | §一 demonstration 数据后置 | — | ✅ 完成 |
 | 4 | PDF | p4 | Fig.1 放大 | §3.1 | 🆕 | ✅ 完成 |
 | 5 | PDF | p7 | 独立 Validation Experiments；LLM Config 移至设计类末位 | §一 目标结构 | 🆕 | ✅ 完成 |

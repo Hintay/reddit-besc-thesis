@@ -36,7 +36,7 @@ Constructing expert-annotated BD corpora is costly: mood-state labeling requires
 
 Recent work has applied LLMs to mental health NLP tasks @xu2024mental @yang2024mentallama; however, whether they can classify BD mood states at expert-level accuracy, especially manic-pole states that are difficult to detect from text, has not been established.
 
-This paper proposes a few-shot prompt-based LLM method for longitudinal mood-state analysis of BD on social media and demonstrates its application to a Reddit cohort. We collect Reddit posts from users who self-identify as having a BD diagnosis in BD-focused subreddits (r/bipolar, r/BipolarReddit, r/bipolar2) and annotate them at two granularities: (1) per-post mood state (_Depressive_, _Stable_, _Hypomanic_, _Manic_) and (2) 14-day period-level mood trends (dominant state, trend direction, change points). The annotation schema follows DSM-5 episode criteria and is implemented as an LLM pipeline (Gemini 3.1 Pro). We validate the post-level annotations against the BD-Risk dataset @lee2024detecting on a held-out, author-disjoint, stratified subset of 145 posts, achieving macro F1 of 0.519 with 87.9% depressive recall and 35.7%/6.7% recall on hypomania/mania. The recall asymmetry across poles reflects both a known model property (manic-side states often manifest through described behaviors rather than affective tone) and a structural label-text consistency issue with the source dataset's manic-pole labels.
+This paper proposes a few-shot prompt-based LLM method for longitudinal mood-state analysis of BD on social media and demonstrates its application to a Reddit cohort. We collect Reddit posts from BD-focused subreddits (r/bipolar, r/BipolarReddit, r/bipolar2), targeting users who self-identify as having a BD diagnosis, and annotate them at two granularities: (1) per-post mood state (_Depressive_, _Stable_, _Hypomanic_, _Manic_) and (2) 14-day period-level mood trends (dominant state, trend direction, change points). The annotation schema follows DSM-5 episode criteria and is implemented as an LLM pipeline (Gemini 3.1 Pro). We validate the post-level annotations against the BD-Risk dataset @lee2024detecting on a held-out, author-disjoint, stratified subset of 145 posts, achieving macro F1 of 0.519 with 87.9% depressive recall and 35.7%/6.7% recall on hypomania/mania. The recall asymmetry across poles reflects both a known model property (manic-side states often manifest through described behaviors rather than affective tone) and a structural label-text consistency issue with the source dataset's manic-pole labels.
 
 Our contributions:
 + *Method:* A DSM-5-grounded few-shot prompt schema for LLM-based mood-state annotation at two temporal granularities (per-post state and 14-day period-level trend), requiring no fine-tuning or labeled training data.
@@ -262,7 +262,7 @@ The proposed method takes as input a user's posting history from mental-health-r
   caption: [Annotation pipeline: user posting history $arrow$ LLM patient verification (three-tier classifier) $arrow$ Gemini 3.1 Pro annotation with two DSM-5-grounded prompts (single-post + 14-day trend) $arrow$ structured JSON outputs at the two temporal granularities.],
 ) <fig-pipeline>
 
-*Patient verification.* Posting to a mental-health-related subreddit is a necessary yet insufficient signal of a BD diagnosis: many such posts come from clinicians, family members, or community discussion. To screen the candidate pool, we apply an LLM three-tier classifier (Gemini 3.1 Pro, separate prompt) that scans each author's full posting history and returns `verified` (explicit first-person diagnostic statements, e.g., "I was diagnosed with bipolar II in 2019", or specific treatment/hospitalization narratives), `probable` (consistent self-identification through symptoms, medication, or community-membership tone without an explicit diagnosis statement), or `unverified` (no diagnostic signal). Only the `verified` and `probable` tiers are admitted to the annotation cohort; this matches the inclusion model used in prior BD social-media datasets @sekulic2018not @jagfeld2021understanding with stricter per-user evidence gating than a one-post membership rule.
+*Patient verification.* Posting to a mental-health-related subreddit is a necessary yet insufficient signal of a BD diagnosis: many such posts come from clinicians, family members, or general community participants. To screen the candidate pool, we apply an LLM three-tier classifier (Gemini 3.1 Pro, separate prompt) that scans each author's full posting history and returns `verified` (explicit first-person diagnostic statements, e.g., "I was diagnosed with bipolar II in 2019", or specific treatment/hospitalization narratives), `probable` (consistent self-identification through symptoms, medication, or community-membership tone without an explicit diagnosis statement), or `unverified` (no diagnostic signal). Only the `verified` and `probable` tiers are admitted to the annotation cohort; this matches the inclusion model used in prior BD social-media datasets @sekulic2018not @jagfeld2021understanding with stricter per-user evidence gating than a one-post membership rule.
 
 == Annotation Schema <frameworksec>
 
@@ -394,10 +394,11 @@ We report per-class precision, recall, and F1, along with overall accuracy and m
 
 == Evaluation Design <evaldesignsec>
 
-Beyond the main BD-Risk holdout validation, we conduct two additional evaluations to characterize the schema's properties:
+Beyond the main BD-Risk holdout validation, we conduct three additional evaluations to characterize the schema's properties and situate its performance relative to supervised alternatives:
 
 - *Zero-shot baseline comparison:* To quantify how much the structured annotation schema (DSM-5 rules, few-shot examples) contributes beyond the LLM's base capability, we re-evaluate the same model with a minimal zero-shot prompt containing only the task definition and output format.
 - *Cross-model feasibility probe:* To test whether the schema generalizes beyond a single LLM provider, we additionally evaluate the full schema with OpenAI's GPT-5.5, characterizing schema portability and the impact of provider-level content-policy differences on annotation feasibility.
+- *Supervised fine-tuning baseline:* To assess whether task-specific fine-tuning with labeled data outperforms the proposed few-shot approach, we fine-tune ModernBERT-base @warner2025modernbert on progressively larger subsets of the 314-example training pool ($n in {50, 100, 200, 314}$) and evaluate on the same 145-example held-out set, providing a direct comparison under identical test conditions.
 
 == LLM Configuration
 
@@ -452,6 +453,38 @@ Depressive recall is high (87.9%) and Stable recall is moderate (78.4%), while H
 
 These _Hypomanic_ errors are concentrated on gold $+$2 posts whose manic-side activation is masked by negative tone, a pattern that the current prompt does not fully resolve.
 
+== Supervised Fine-Tuning Baseline <bertsec>
+
+To contextualize the few-shot LLM results, we compare against a supervised baseline. We fine-tune ModernBERT-base @warner2025modernbert (149M parameters) on the same BD-Risk training pool using progressively larger labeled subsets ($n in {50, 100, 200, 314}$), evaluating on the identical 145-example held-out set. Each tier is trained for 10 epochs with a learning rate of $2 times 10^(-5)$ and a maximum sequence length of 2,048 tokens; for tiers 50--200, we report the mean and standard deviation over five random training-set samples (seeds 42--46), while tier 314 uses all available training examples and reports variance over five random initializations. @tab-bert-baseline summarizes the results alongside the LLM conditions.
+
+#figure(
+  table(
+    columns: 4,
+    align: (left, left, right, right),
+    stroke: none,
+    table.hline(),
+    table.header(
+      [*Method*], [*Training data*], [*Macro F1*], [*$Delta$ vs. few-shot*],
+    ),
+    table.hline(stroke: 0.5pt),
+    [ModernBERT], [$n = 50$],   [$0.306 plus.minus 0.022$], [$-0.213$],
+    [ModernBERT], [$n = 100$],  [$0.337 plus.minus 0.018$], [$-0.182$],
+    [ModernBERT], [$n = 200$],  [$0.372 plus.minus 0.019$], [$-0.147$],
+    [ModernBERT], [$n = 314$],  [$0.398 plus.minus 0.018$], [$-0.121$],
+    table.hline(stroke: 0.5pt),
+    [Gemini 3.1 Pro], [zero-shot],  [$0.459$], [$-0.060$],
+    [Gemini 3.1 Pro], [8 few-shot], [$bold(0.519)$], [---],
+    table.hline(),
+  ),
+  caption: [Supervised fine-tuning baseline vs.\ LLM annotation on the held-out subset ($n = 145$). ModernBERT results report mean $plus.minus$ std over 5 seeds. The few-shot LLM uses eight synthetic examples and requires no labeled training data.],
+) <tab-bert-baseline>
+
+ModernBERT macro F1 increases monotonically with training size (0.306 $arrow.r$ 0.398), yet even at the maximum available training size ($n = 314$), it falls short of Gemini few-shot (0.519) by 0.121 and barely approaches the Gemini zero-shot level (0.459). We additionally explored training for 15 and 20 epochs on the full 314-example set; the best configuration (15 epochs: $0.454 plus.minus 0.038$) narrows the gap yet remains below the few-shot result.
+
+Per-class analysis reveals that ModernBERT shares the same manic-pole difficulty observed in the LLM results (@bdresultsec): across the five tier-314 runs, _Manic_ recall averages 0.04 (2 of 5 runs produce zero _Manic_ recall), while _Depressive_ and _Stable_ F1 average 0.51 and 0.62 respectively. This parallel suggests that the manic-pole limitation is rooted in the BD-Risk label--text relationship (@errorsec, Pattern~1) rather than in the choice of model architecture.
+
+From a practical standpoint, constructing 314 expert-labeled training examples for BD mood-state classification requires psychiatric expertise and substantial annotation effort. The few-shot LLM approach achieves higher performance using only eight synthetic examples embedded in the prompt, with no manual labeling. This comparison supports the proposed method's practical advantage in low-resource clinical NLP settings where labeled data is scarce.
+
 == Interpretation of Validation Results
 
 === The Uncertain Label as Quality Control
@@ -495,7 +528,7 @@ As a cross-model probe (@evaldesignsec), we evaluated the full schema with OpenA
 
 *Refusal under content policy.* GPT-5.5 declined to classify 103 of 145 held-out posts (71.0%) with a verbatim refusal (`"I'm sorry, but I cannot assist with that request."`), concentrated on posts containing explicit self-harm or suicidal content, the safety-relevant subset that BD-Risk includes by clinical design and that the _SAFETY OVERRIDE_ rule is built to handle. The prompt's clinical-research framing did not overcome the refusal. Gemini 3.1 Pro produced structured output for all 145 posts under the same prompt.
 
-*Performance on the non-refused subset.* On the 42 posts GPT-5.5 did classify (skewed away from depressive-crisis content: 16 _Depressive_, 10 _Stable_, 12 _Hypomanic_, 4 _Manic_), it achieves macro F1 of 0.710 (Gemini: 0.649), driven primarily by higher Manic recall (2/4 vs.~1/4). The schema produces sensible structured output, suggesting it is not inherently Gemini-specific. However, the subset selection is the dominant effect: GPT-5.5 systematically filtered out the hard depressive-crisis posts that drive most of Gemini's error rate on the full held-out subset, so the macro-F1 comparison overstates GPT-5.5's effective competence. Most importantly, a 71% refusal rate renders GPT-5.5 infeasible as a stand-alone annotator for psychiatric corpora regardless of intrinsic capability.
+*Performance on the non-refused subset.* On the 42 posts GPT-5.5 did classify (skewed away from depressive-crisis content: 16 _Depressive_, 10 _Stable_, 12 _Hypomanic_, 4 _Manic_), it achieved a macro F1 of 0.710 (Gemini: 0.649), driven primarily by higher Manic recall (2/4 vs.~1/4). The schema produces sensible structured output, suggesting it is not inherently Gemini-specific. However, the subset selection is the dominant effect: GPT-5.5 systematically filtered out the hard depressive-crisis posts that drive most of Gemini's error rate on the full held-out subset, so the macro-F1 comparison overstates GPT-5.5's effective competence. Most importantly, a 71% refusal rate renders GPT-5.5 infeasible as a stand-alone annotator for psychiatric corpora regardless of intrinsic capability.
 
 === Error Analysis <errorsec>
 
@@ -598,7 +631,7 @@ Most 14-day windows show NO\_TREND, as expected: DSM-5 episode-duration criteria
 
 = Limitations
 
-The proposed method and corpus are subject to constraints that we group into evaluation scope, evaluation labels, manic-pole interpretability, cohort framing, and release-time reliability.
+The proposed method and corpus are subject to constraints that we group into evaluation scope, gold-state derivation, manic-pole interpretability, cohort framing, and release-time reliability.
 
 *Evaluation scope.* The main BD-Risk validation reports a single annotator (Gemini 3.1 Pro); a complementary cross-model probe with GPT-5.5 (macro F1 0.710 on 42 non-refused posts) suggests that the schema is not inherently Gemini-specific, yet GPT-5.5 cannot be used at scale under OpenAI's current content policy (71% refusal on the held-out subset), so the per-class numbers on the 145-post held-out subset should be read as Gemini-specific. The quantitative validation is also at the post level only, because few per-post expert-labeled BD datasets at sufficient scale are available for research use (BD-Risk was obtained through a formal data request and ethics review, and comparable shared-task corpora face similar access barriers); period-level trends, a key contribution of the method, are not externally validated.
 
@@ -618,7 +651,7 @@ The validation separates the proposed method's two failure sources: 87.9% depres
 
 This study involves analysis of publicly posted social media content discussing sensitive mental health experiences. The study protocol was reviewed and approved by the Research Ethics Committee of the University of Tsukuba (approval no.~25-188). We additionally adhere to Reddit's privacy policy and social media research ethics guidelines @harrigian2021state.
 
-*De-identification.* Before public release, all post content undergoes LLM-based de-identification. We classify personally identifiable information into five risk-ranked categories: _identifiers_ (direct names), _quasi-identifiers_ (combinable details such as specific locations, organizations, dates, or unique personal circumstances), _contact information_, _linkage codes_, and _personal identification codes_, replacing each detected PII span with a category-specific placeholder (e.g., `[IDENTIFIER]`, `[QUASI_ID]`). The LLM additionally surfaces long-span quasi-identifiers where the accumulation of individually innocuous details (occupation, location, family structure) could jointly narrow identification to one person, a pattern rule-based or NER approaches typically miss. The taxonomy is designed to preserve clinically relevant content (medication names, diagnosis types, symptom descriptions, relative temporal expressions) while removing identifying information.
+*De-identification.* Before public release, all post content undergoes LLM-based de-identification. We classify personally identifiable information into five risk-ranked categories: _identifiers_ (direct names), _quasi-identifiers_ (combinable details such as specific locations, organizations, dates, or unique personal circumstances), _contact information_, _linkage codes_, and _personal identification codes_, replacing each detected PII span with a category-specific placeholder (e.g., `[IDENTIFIER]`, `[QUASI_ID]`). The LLM additionally surfaces long-span quasi-identifiers where the accumulation of individually innocuous details (occupation, location, family structure) could jointly narrow identification to one person, a pattern that rule-based or NER approaches typically miss. The taxonomy is designed to preserve clinically relevant content (medication names, diagnosis types, symptom descriptions, relative temporal expressions) while removing identifying information.
 
 *Data minimization and intended use.* The dataset retains only text content and temporal information necessary for mood-state annotation; author usernames are replaced with anonymized identifiers, and subreddit membership and post metadata that could facilitate re-identification are excluded from the published dataset. To reduce search-based re-identification risk, released timelines use relative temporal offsets rather than exact posting times. Because LLM-based de-identification may miss residual quasi-identifiers, public release is conditioned on a pre-release privacy audit of a stratified sample. The dataset is intended solely for computational mental-health research and must not be used for re-identification, commercial profiling, or clinical decision-making without appropriate expert oversight.
 
