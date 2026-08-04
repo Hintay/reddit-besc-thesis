@@ -73,7 +73,7 @@ Unlike these diagnosis-prediction evaluations, we propose a prompt-based method 
 \subsection{Method Overview}
 \label{sec:resource}
 
-The proposed method takes as input a user's posting history from mental-health-related social media communities and produces mood-state annotations at two temporal granularities (per-post state and 14-day period-level trend). Fig.~\ref{fig:pipeline} shows the end-to-end flow: candidate identification through LLM-based patient verification, followed by structured annotation with two DSM-5-grounded prompts.
+The proposed method takes as input a user's posting history from mental-health-related social media communities and produces mood-state annotations at two temporal granularities (per-post state and 14-day period-level trend). Fig.~\ref{fig:pipeline} shows the end-to-end flow: candidate identification through LLM-based patient verification, followed by structured annotation with two DSM-5-grounded prompts. When applying the method to raw social media data, the pipeline optionally begins with patient verification to filter the input cohort; for pre-verified corpora such as BD-Risk, annotation starts directly at the prompt stage.
 
 \begin{figure}[t]
 \centering
@@ -110,7 +110,7 @@ For longitudinal mood trajectory modeling, we partition each user's posting hist
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/fig_period_slicing.pdf}
-\caption{Period segmentation (illustrative). Submissions (filled circles) and comments (open circles) fall in the period containing their timestamp; empty periods carry the \texttt{NO\_DATA} label.}
+\caption{Period segmentation (illustrative): fixed 14-day windows anchored at the user's first post (day 0). Submissions (filled circles) and comments (open circles) fall in the period containing their timestamp; empty periods (Period 3) carry the \texttt{NO\_DATA} label rather than being skipped.}
 \label{fig:period-slicing}
 \end{figure}
 
@@ -124,7 +124,7 @@ For each period containing at least one post, the LLM analyzes the collected pos
 \item \textbf{DSM-5 specifiers:} \texttt{with\_mixed\_features} when opposite-pole symptoms co-occur within the period (distinguished from sequential fluctuation).
 \end{itemize}
 
-The two granularities support both event-level analysis (e.g., what preceded a state change) and longitudinal trajectory modeling, with the explicit change-point fields enabling change-point detection~\cite{truong2020selective} at the textual level.
+Together, the two granularities support both event-level analysis (e.g., what preceded a state change) and longitudinal trajectory modeling, with the explicit change-point fields enabling change-point detection~\cite{truong2020selective} at the textual level.
 
 \subsubsection{Few-Shot Example Construction}
 The post-level prompt is paired with eight synthetic few-shot examples (labeled A--H), written by the authors. Each exercises a schema rule targeting a failure mode observed during development (full analysis in Sect.~\ref{sec:error}): A demonstrates \emph{Behavior Over Tone} on retrospective manic-side narration; B and~E demonstrate the \emph{SAFETY OVERRIDE} rule with its grandiose-mania exception; C and~D contrast \emph{Improvement-Narrative} against \emph{Whole-Post Evidence Weighting}; F counters the default-to-\emph{Uncertain} tendency on short posts; G demonstrates the \emph{Recurrent-Pattern Exception} for substance-triggered hypomania; H exercises \emph{Severity Descriptors} for \emph{Hypomanic}-vs-\emph{Stable} boundaries. Each example provides the input text with the full expected JSON output (including the \texttt{opposite\_pole\_symptoms} evidence list and reasoning), so the model observes both the target label and the evidence chain. The full prompt texts are available in the supplementary repository (see the Appendix).
@@ -134,12 +134,14 @@ The post-level prompt is paired with eight synthetic few-shot examples (labeled 
 \subsection{External Validation Against BD-Risk}
 \label{sec:valid}
 
+\subsubsection{The BD-Risk Dataset}
 The BD-Risk dataset~\cite{lee2024detecting} comprises 7,346 Reddit posts from 1,025 users, each carrying a psychiatrist-guided mood level label on a 7-point scale ($-3$ to $+3$). Because the dataset selects users based on an initial MDD presentation (MDD-only and MDD$\rightarrow$BD groups), it is structurally enriched for depressive-pole content (89.0\% of posts $< 0$).
 
+\subsubsection{Gold State Derivation}
 The BD-Risk dataset provides only ordinal mood labels; categorical states are not directly annotated. To obtain gold states for evaluation, we derive them from BD-Risk mood labels using the mapping shown in Table~\ref{tab:mapping}.
 
 \begin{table}[t]
-\caption{Mapping from BD-Risk 7-point mood labels to derived gold states.}
+\caption{Mapping from BD-Risk 7-point mood labels to derived gold states. This mapping treats $+1$ as within the normal positive range (Stable) rather than pathological activation.}
 \label{tab:mapping}
 \centering
 \begin{tabular}{ccp{5.2cm}}
@@ -156,6 +158,7 @@ $+3$ & Manic & Severe manic expression with psychotic features \\
 \end{tabular}
 \end{table}
 
+\subsubsection{Evaluation Set Construction}
 The full BD-Risk dataset exhibits a heavily skewed mood distribution (89.0\% of posts $< 0$). Because the deployment task is BD risk detection rather than general mood classification, we deliberately oversample manic-pole posts so that per-class metrics on the underrepresented classes are computed with sufficient support.
 
 We separate the labeled posts into two disjoint subsets. A \emph{development} subset (314 posts) is used during prompt design and failure-mode analysis. A \emph{held-out} subset (145 posts) is used exclusively for the evaluation reported below; it is \emph{author-disjoint} from the development subset, drawn by stratified sampling from BD-Risk authors not present in the development subset, with quotas ensuring sufficient per-class support across the four derived gold states (60 \emph{Depressive}, 40 \emph{Stable}, 30 \emph{Hypomanic}, 15 \emph{Manic}). All metrics in Sect.~\ref{sec:bdresult} are computed on the held-out subset; the development subset is never used to produce reported numbers. Manic-pole gold posts in BD-Risk come almost exclusively from the MDD$\rightarrow$BD group, so the held-out manic-side samples are structurally MDD$\rightarrow$BD-derived (a limitation discussed in Sect.~\ref{sec:discussion}).
@@ -163,7 +166,9 @@ We separate the labeled posts into two disjoint subsets. A \emph{development} su
 \subsection{Evaluation Metrics}
 \label{sec:metrics}
 
-We report per-class precision, recall, and F1, along with overall accuracy and macro F1. Two accuracy variants are reported: accuracy \emph{excluding} \emph{Uncertain} treats \emph{Uncertain} outputs as abstentions and removes them from both numerator and denominator; accuracy \emph{including} \emph{Uncertain} counts \emph{Uncertain} as incorrect, providing a conservative lower bound. Per-class metrics are computed on the excluding-Uncertain basis.
+Throughout this paper, we refer to the expert-assigned labels from the BD-Risk dataset as gold labels and the LLM outputs as predictions. Gold states are derived from BD-Risk mood labels via the mapping in Table~\ref{tab:mapping}.
+
+We report per-class precision, recall, and F1, along with overall accuracy and macro F1, plus the confusion matrix. Two accuracy variants are reported: accuracy \emph{excluding} \emph{Uncertain} treats \emph{Uncertain} outputs as abstentions and removes them from both numerator and denominator; accuracy \emph{including} \emph{Uncertain} counts \emph{Uncertain} as incorrect, providing a conservative lower bound. Per-class precision, recall, and F1 are computed on the excluding-Uncertain basis. All metrics are computed on the full evaluation set.
 
 \subsection{Evaluation Design}
 \label{sec:evaldesign}
@@ -204,7 +209,28 @@ Manic & \textbf{1.000} & 0.067 & 0.125 & 15 \\
 \end{tabular}
 \end{table}
 
-\emph{Depressive} recall is high (87.9\%) and \emph{Stable} recall is moderate (78.4\%), while \emph{Hypomanic} and \emph{Manic} recall remain low (35.7\% and 6.7\%), indicating that the LLM correctly recognizes most depressive and stable posts while missing a majority of manic-pole cases. The dominant error flow runs from the manic pole to \emph{Depressive}: among the 30 gold-\emph{Hypomanic} posts, 12 are predicted \emph{Depressive} and 6 \emph{Stable}; among the 15 gold-\emph{Manic} posts, 11 are predicted \emph{Depressive} and 2 \emph{Stable}. These errors are concentrated on manic-pole posts whose activation is masked by negative tone, a pattern that the current prompt does not fully resolve. The Manic-to-Depressive error flow is a recurring pattern with a likely label-text origin that we discuss in Sect.~\ref{sec:discussion}.
+\emph{Depressive} recall is high (87.9\%) and \emph{Stable} recall is moderate (78.4\%), while \emph{Hypomanic} and \emph{Manic} recall remain low (35.7\% and 6.7\%), indicating that the LLM correctly recognizes most depressive and stable posts while missing a majority of manic-pole cases. The confusion matrix (Table~\ref{tab:state-cm}) makes the dominant error flow explicit: among the 30 gold-\emph{Hypomanic} posts, 12 are predicted as \emph{Depressive} and 6 as \emph{Stable}; among the 15 gold-\emph{Manic} posts, 11 are predicted as \emph{Depressive} and 2 as \emph{Stable}. The Manic-to-Depressive error flow is a recurring pattern with a likely label-text origin that we discuss in Sect.~\ref{sec:discussion}.
+
+\begin{table}[t]
+\caption{State confusion matrix on the held-out subset (rows: derived gold state; columns: LLM prediction). DEP = Depressive, STA = Stable, HYP = Hypomanic, MAN = Manic, UNC = Uncertain.}
+\label{tab:state-cm}
+\centering
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{lrrrrrr}
+\toprule
+ & \multicolumn{6}{c}{\textbf{Predicted}} \\
+\cmidrule(lr){2-7}
+\textbf{Gold} & \textbf{DEP} & \textbf{STA} & \textbf{HYP} & \textbf{MAN} & \textbf{UNC} & \textbf{Total} \\
+\midrule
+Depressive & \textbf{51} & 7 & 0 & 0 & 2 & 60 \\
+Stable & 7 & \textbf{29} & 1 & 0 & 3 & 40 \\
+Hypomanic & 12 & 6 & \textbf{10} & 0 & 2 & 30 \\
+Manic & 11 & 2 & 1 & \textbf{1} & 0 & 15 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+These \emph{Hypomanic} errors are concentrated on gold $+2$ posts whose manic-side activation is masked by negative tone, a pattern that the current prompt does not fully resolve.
 
 \subsection{Supervised Fine-Tuning Baseline}
 \label{sec:bert}
@@ -235,17 +261,18 @@ ModernBERT macro F1 increases monotonically with training size (0.306 $\rightarr
 
 Per-class analysis reveals that ModernBERT shares the same manic-pole difficulty observed in the LLM results (Sect.~\ref{sec:bdresult}): across the five tier-314 runs, \emph{Manic} recall averages 0.04 (2 of 5 runs produce zero \emph{Manic} recall), while \emph{Depressive} and \emph{Stable} F1 average 0.51 and 0.62 respectively. This parallel suggests that the manic-pole limitation is rooted in the BD-Risk label--text relationship (Sect.~\ref{sec:error}, Pattern~1) rather than in the choice of model architecture.
 
-Labeling 314 training examples for BD mood-state classification required psychiatrist-guided annotation; the few-shot LLM approach outperforms this baseline using only eight synthetic prompt examples and no manual labeling.
+From a practical standpoint, constructing 314 expert-labeled training examples for BD mood-state classification requires psychiatric expertise and substantial annotation effort. The few-shot LLM approach achieves higher performance using only eight synthetic examples embedded in the prompt, with no manual labeling. This comparison supports the proposed method's practical advantage in low-resource clinical NLP settings where labeled data is scarce.
 
 \subsection{Interpretation of Validation Results}
 
+\subsubsection{The Uncertain Label as Quality Control}
 The LLM assigned \emph{Uncertain} to 7 posts (4.8\%), abstaining when post content was insufficient for state assessment, consistent with the prompt's explicit instruction to prefer abstention over forced classification. \emph{Uncertain} emissions are distributed across gold classes (2 \emph{Depressive}, 3 \emph{Stable}, 2 \emph{Hypomanic}, 0 \emph{Manic}), with no strong concentration on a single pole.
 
 \subsubsection{Schema Contribution: Comparison with a Zero-Shot Baseline}
 Following the design in Sect.~\ref{sec:evaldesign}, we compare the full schema against a minimal zero-shot prompt on the held-out subset. The zero-shot prompt retains only the task definition (post $\rightarrow$ one of five states) and the output JSON fields; all DSM-5 rules, \emph{SAFETY OVERRIDE}, \emph{Severity Descriptors}, and few-shot examples are removed. Table~\ref{tab:zeroshot} reports the side-by-side metrics.
 
 \begin{table}[t]
-\caption{Schema contribution on the held-out subset (n=145). Both runs use Gemini 3.1 Pro with identical JSON output; the only variable is the system prompt (minimal zero-shot versus the full schema).}
+\caption{Schema contribution on the held-out subset (n=145). Both runs use Gemini 3.1 Pro with the same JSON output; the only variable is the system prompt (zero-shot: task definition only; full schema: \emph{SAFETY OVERRIDE}, \emph{Severity Descriptors}, \emph{Clinical Guidance}, eight few-shot examples).}
 \label{tab:zeroshot}
 \centering
 \setlength{\tabcolsep}{8pt}
@@ -265,7 +292,9 @@ MANIC F1 & 0.000 & \textbf{0.125} & $+$0.125 \\
 \end{tabular}
 \end{table}
 
-The schema's primary effect is reducing abstention and anchoring border-class decisions: \emph{Uncertain} emissions drop $4\times$ (27 $\rightarrow$ 7) and \emph{Stable} F1 improves by +0.116 (driven by the Severity Descriptors' explicit rule that mild positive activation falls within \emph{Stable}), which explains why the accuracy gain including \emph{Uncertain} (+11.1 pp) far exceeds the gain excluding it (+2.3 pp). \emph{Depressive} and \emph{Hypomanic} F1 are unchanged, and \emph{Manic} remains poorly recalled in both runs (0/15 zero-shot vs.\ 1/15 schema, counting \emph{Uncertain} as incorrect), indicating that the manic-pole limitation is structural (label-text consistency, Sect.~\ref{sec:discussion}) rather than a limitation resolved by this richer prompt.
+Three observations frame the schema's value. First, the largest single effect is a $4\times$ reduction in \emph{Uncertain} emissions (27 $\rightarrow$ 7): the structured schema gives the LLM the vocabulary to commit to a label rather than abstain, which explains why the accuracy gain including \emph{Uncertain} (+11.1 pp) is much larger than the gain excluding \emph{Uncertain} (+2.3 pp). Second, \emph{Stable} classification benefits the most in per-class F1 (+0.116), driven by the Severity Descriptors' explicit ``Stable includes mild positive activation'' rule that prevents the LLM from defaulting non-pathological positive posts to \emph{Depressive} or \emph{Uncertain}. Third, \emph{Depressive} and \emph{Hypomanic} F1 are unchanged, suggesting that the full schema did not materially alter performance for those categories on this subset, and \emph{Manic} remains poorly recalled in both runs (0/15 zero-shot vs.~1/15 schema, counting \emph{Uncertain} as incorrect), further suggesting that the manic-pole limitation is structural (label-text consistency, Sect.~\ref{sec:discussion}) rather than a limitation resolved by this richer prompt.
+
+The comparison suggests that the schema's primary contribution is coverage and decisiveness (preventing abstention, anchoring border-class decisions) rather than raw classification accuracy on the cases the LLM is already confident about.
 
 \subsubsection{Cross-Model Schema Portability}
 \label{sec:crossmodel}
@@ -293,7 +322,7 @@ The comparison yields three observations. First, the schema produces valid struc
 
 Gemini 3.5 Flash achieves the highest macro F1 (0.564) among models evaluated on the full held-out subset, exceeding Gemini 3.1 Pro by 0.045. Because the corpus was annotated with Gemini 3.1 Pro prior to this cross-model comparison, the existing annotations remain unchanged; the result indicates that schema performance improves with model capability and that re-annotation with newer models could improve manic-pole coverage.
 
-GPT-5.5 declined to classify 103 of 145 held-out posts (71.0\%) with a verbatim refusal (\texttt{"I'm sorry, but I cannot assist with that request."}), concentrated on posts containing explicit self-harm or suicidal content. The prompt's clinical-research framing did not overcome the refusal. On the 42 posts GPT-5.5 did classify (skewed away from depressive-crisis content: 16 \emph{Depressive}, 10 \emph{Stable}, 12 \emph{Hypomanic}, 4 \emph{Manic}), it achieved macro F1 of 0.710, driven primarily by higher \emph{Manic} recall (2/4). The subset selection is the dominant effect: GPT-5.5 systematically filtered out the hard depressive-crisis posts that drive most of Gemini's error rate, so the macro-F1 comparison overstates GPT-5.5's effective competence. A 71\% refusal rate renders GPT-5.5 infeasible as a stand-alone annotator for psychiatric corpora regardless of intrinsic capability.
+GPT-5.5 (evaluated with \texttt{reasoning\_effort} = \texttt{"high"}) declined to classify 103 of 145 held-out posts (71.0\%) with a verbatim refusal (\texttt{"I'm sorry, but I cannot assist with that request."}), concentrated on posts containing explicit self-harm or suicidal content, the safety-relevant subset that BD-Risk includes by clinical design and that the \emph{SAFETY OVERRIDE} rule is built to handle. The prompt's clinical-research framing did not overcome the refusal. On the 42 posts GPT-5.5 did classify (skewed away from depressive-crisis content: 16 \emph{Depressive}, 10 \emph{Stable}, 12 \emph{Hypomanic}, 4 \emph{Manic}), it achieved macro F1 of 0.710 (Gemini 3.1 Pro on the same 42 posts: 0.649), driven primarily by higher \emph{Manic} recall (2/4 vs.~1/4). The subset selection is the dominant effect: GPT-5.5 systematically filtered out the hard depressive-crisis posts that drive most of Gemini's error rate, so the macro-F1 comparison overstates GPT-5.5's effective competence. A 71\% refusal rate renders GPT-5.5 infeasible as a stand-alone annotator for psychiatric corpora regardless of intrinsic capability.
 
 \subsubsection{Error Analysis}
 \label{sec:error}
@@ -319,14 +348,14 @@ We continuously crawl three BD-focused subreddits (r/bipolar, r/BipolarReddit, r
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/fig_timeline.pdf}
-\caption{Mood trajectories for four anonymized users (A: depressive with fluctuation, 49 periods; B: hypomanic-leaning with frequent manic transitions, 74 periods; C: manic-dominant with rapid cycling, 36 periods; D: dense posting with high mixed-features incidence, 25 periods). Each bar is a 14-day period; a thin black border marks \texttt{with\_mixed\_features}. Dots above bars are post-level annotations colored by post state. State and trend encodings follow the legend.}
+\caption{Mood trajectories for four anonymized users (A: depressive with fluctuation, 49 periods; B: hypomanic-leaning with frequent manic transitions, 74 periods; C: manic-dominant with rapid cycling, 36 periods; D: dense posting with high mixed-features incidence, 25 periods). Bars = 14-day periods (color = dominant state; hatch = trend direction; thin black border = \texttt{with\_mixed\_features}); dots above bars = post-level annotations, color-coded by post state.}
 \label{fig:user-timeline}
 \end{figure}
 
-Most 14-day windows show \texttt{NO\_TREND} (83.9\%); \texttt{TOWARDS\_DEPRESSION} and \texttt{TOWARDS\_MANIA} account for 5.9\% and 4.3\% respectively. \emph{Stable} and \emph{Depressive} states dominate (42.6\% and 31.4\% of periods), while manic-pole states are less frequent (\emph{Hypomanic} 8.8\%, \emph{Manic} 3.0\%). These distributions are interpreted in Sect.~\ref{sec:discussion}.
+Most 14-day windows show \texttt{NO\_TREND} (83.9\%), as expected: DSM-5 episode-duration criteria require $\geq$1 week for mania, $\geq$4 days for hypomania, and $\geq$2 weeks for major depression~\cite{apa2013dsm5}, and untreated episodes typically last weeks to months, so within-window transitions are infrequent; the rare \texttt{TOWARDS\_DEPRESSION} (5.9\%) and \texttt{TOWARDS\_MANIA} (4.3\%) trends mark episode onset or escalation, the signals most relevant for early intervention. \emph{Stable} and \emph{Depressive} states dominate (42.6\% and 31.4\% of periods), while manic-pole states constitute a smaller share (\emph{Hypomanic} 8.8\%, \emph{Manic} 3.0\%), broadly consistent with the depressive-pole predominance reported in long-term BD cohort studies~\cite{grande2016bipolar} while reflecting the selection and posting biases of Reddit communities. These distributions are further interpreted in Sect.~\ref{sec:discussion}.
 
 \begin{table}[t]
-\caption{Period-level distributions on the 105-user cohort ($n = 1{,}794$): trend directions (left) and dominant states (right). The \texttt{with\_mixed\_features} specifier was applied to 84 periods (4.7\%).}
+\caption{Period-level distributions on the 105-user cohort ($n = 1{,}794$). Left: trend directions (\texttt{NO\_TREND} = state maintained, \texttt{FLUCTUATING} = alternation, \texttt{TOWARDS\_MANIA} / \texttt{TOWARDS\_DEPRESSION} = worsening). Right: dominant states; \texttt{with\_mixed\_features} was applied to 84 periods (4.7\%).}
 \label{tab:pilot-dists}
 \centering
 \begin{tabular}{lrr}
@@ -353,32 +382,50 @@ Uncertain & 254 & 14.2\% \\
 \end{tabular}
 \end{table}
 
-Submissions ($n = 2{,}611$) carry the majority of polar-state labels: 36.8\% \emph{Depressive}, 10.6\% \emph{Hypomanic}, 3.8\% \emph{Manic}, 46.6\% \emph{Stable}, and 2.2\% \emph{Uncertain}. Comments ($n = 12{,}812$) are predominantly conversational replies labeled \emph{Stable} (88.1\%), with polar states comprising only 8.9\% of comments. The submission--comment asymmetry and its implications are discussed in Sect.~\ref{sec:discussion}.
+Table~\ref{tab:post-state-dist} breaks the post-level assignments down by content type; the submission--comment asymmetry and its implications are discussed in Sect.~\ref{sec:discussion}. The \emph{Uncertain} rate is low for both content types ($\leq$3.0\%), reflecting the model's confidence on the corpus.
+
+\begin{table}[t]
+\caption{Post-level state distribution across the 105-user cohort, separated by content type. Posts (submissions, $n = 2{,}611$) function as longer-form emotional disclosures and carry the majority of polar-state labels; comments ($n = 12{,}812$) are predominantly conversational replies labeled \emph{Stable}.}
+\label{tab:post-state-dist}
+\centering
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{State} & \textbf{Posts} & \textbf{\%} & \textbf{Comments} & \textbf{\%} \\
+\midrule
+Manic & 98 & 3.8\% & 93 & 0.7\% \\
+Hypomanic & 277 & 10.6\% & 292 & 2.3\% \\
+Stable & 1,217 & 46.6\% & 11,287 & 88.1\% \\
+Depressive & 961 & 36.8\% & 755 & 5.9\% \\
+Uncertain & 58 & 2.2\% & 385 & 3.0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 The trajectory data adds a temporal dimension that per-post or per-user classification cannot provide: prior approaches yield static snapshots (a single diagnostic label or an isolated mood score) without capturing how states transition over weeks to months. Fig.~\ref{fig:user-timeline} illustrates individual-level patterns that this temporal view reveals: User~B exhibits a sequence of hypomanic periods followed by manic escalation, a pattern consistent with episode onset; User~D shows frequent mixed-features periods, consistent with a rapid-cycling presentation. These trajectory-level signals (episode onset, escalation, and cycling patterns) cannot be recovered from per-post labels in isolation; we present them as unvalidated hypotheses that could, once confirmed against expert-annotated period-level ground truth, inform clinical early-warning systems or patient self-monitoring tools.
 
 \section{Discussion}
 \label{sec:discussion}
 
-From the trend distribution (Sect.~\ref{sec:pilot}), four observations stand out. (1) \texttt{TOWARDS\_MANIA} and \texttt{TOWARDS\_DEPRESSION} trends are rare yet among the most clinically significant signals, as they mark episode onset where intervention has the most impact. (2) \texttt{FLUCTUATING} periods may correspond to rapid cycling or mixed presentations that single-post labels cannot capture. (3) Post-level states and period-level trends together enable hierarchical modeling: predicting the next period's trajectory from the sequence of post-level features. (4) The dominant-state distribution preserves sufficient manic-pole representation (\emph{Hypomanic} 8.8\%, \emph{Manic} 3.0\%), in contrast to MDD-selected cohorts (BD-Risk: 89.0\% depressive-pole); this balance matters for downstream models that must distinguish manic-pole from depressive states. The trend distributions broadly match long-term BD cohort studies~\cite{grande2016bipolar} while reflecting the selection and posting biases of Reddit communities; direct external validation would require period-level expert annotations. A complementary direction is to model the absence signal in \texttt{NO\_DATA} periods: reduced posting is sometimes associated with depression in digital-phenotyping research~\cite{faurholt2018smartphone}, yet the relationship is heterogeneous, so absence modeling would require posting-frequency baselines beyond a text-based pipeline.
+Prior BD datasets primarily provide per-user labels~\cite{cohan2018smhd,sekulic2018not} or per-post scores~\cite{lee2024detecting}, leaving period-level mood trajectories underrepresented; our period-level annotations add this dimension by recording in each 14-day window the dominant state, the trend direction (whether mood is shifting), and change points (when shifts occur). From the trend distribution (Sect.~\ref{sec:pilot}), four observations stand out. (1) \texttt{TOWARDS\_MANIA} and \texttt{TOWARDS\_DEPRESSION} trends are rare yet among the most clinically significant signals, as they mark episode onset where intervention has the most impact. (2) \texttt{FLUCTUATING} periods may correspond to rapid cycling or mixed presentations that single-post labels cannot capture. (3) Post-level states and period-level trends together enable hierarchical modeling: predicting the next period's trajectory from the sequence of post-level features. (4) The dominant-state distribution preserves sufficient manic-pole representation (\emph{Hypomanic} 8.8\%, \emph{Manic} 3.0\%), in contrast to MDD-selected cohorts (BD-Risk: 89.0\% depressive-pole); this balance matters for downstream models that must distinguish manic-pole from depressive states. The trend distributions broadly match long-term BD cohort studies~\cite{grande2016bipolar} while reflecting the selection and posting biases of Reddit communities; direct external validation would require period-level expert annotations. A complementary direction is to model the absence signal in \texttt{NO\_DATA} periods: reduced posting is sometimes associated with depression in digital-phenotyping research~\cite{faurholt2018smartphone}, yet the relationship is heterogeneous, so absence modeling would require posting-frequency baselines beyond a text-based pipeline.
 
-Submissions and comments differ sharply: 51.2\% of submissions carry a polar state vs.~8.9\% of comments, which are dominated by \emph{Stable} (88.1\%). Submissions are longer-form disclosures while comments are short replies. Two downstream implications: a per-post classifier on a comment-heavy corpus is likely to appear over-confident on \emph{Stable}, so per-content-type metrics are preferable to a single aggregate; and trajectory models should either up-weight submissions or rely on the period-level dominant-state annotation (which already aggregates across content types within the window) as the primary trajectory signal.
+Table~\ref{tab:post-state-dist} also reveals a sharp submission--comment asymmetry: 51.2\% of submissions carry a polar state vs.~8.9\% of comments, which are dominated by \emph{Stable} (88.1\%). Submissions are longer-form disclosures while comments are short replies. Two downstream implications: a per-post classifier on a comment-heavy corpus is likely to appear over-confident on \emph{Stable}, so per-content-type metrics are preferable to a single aggregate; and trajectory models should either up-weight submissions or rely on the period-level dominant-state annotation (which already aggregates across content types within the window) as the primary trajectory signal.
 
-The LLM achieves 87.9\% recall for \emph{Depressive} yet only 35.7\% for \emph{Hypomanic} and 6.7\% for \emph{Manic} on the held-out subset. Two factors compound this asymmetry. First, a model property: depressive language has stereotypical surface markers (negativity, self-focus, hopelessness), while manic-pole states often manifest through \emph{described behaviors} (spending sprees, reduced sleep need, grandiose plans) narrated in any tone, and the LLM reads tone rather than the clinical significance of the behaviors described (see Pattern~1 in Sect.~\ref{sec:error}). Second, a label--text consistency issue in the BD-Risk annotation rule: as specified by Lee et al.~\cite{lee2024detecting} (Section~3.2), ``posts exhibiting both manic and depressive moods are regarded as manic moods'', an asymmetric tie-breaker that elevates any mixed manic+depressive post to the manic side. Combined with the dataset's MDD$\rightarrow$BD selection criteria, this yields gold-label \emph{Manic} ($+3$) posts whose textual content matches BD-Risk's own definition of $-3$ (``extreme anxiety and having suicidal thoughts''). A single-post LLM applying clinical-safety priors (classifying explicit self-harm content as \emph{Depressive}) will systematically underperform on these posts, since the only signal it has is the very content the labeling rule overrode. The cross-model evaluation (Sect.~\ref{sec:crossmodel}) provides direct evidence for the structural interpretation: across six LLMs from five providers, \emph{Manic} recall ranges from 0.0\% (DeepSeek V4 Pro, GLM-5.1) to 20.0\% (Gemini 3.5 Flash), and the supervised ModernBERT baseline averages 4.0\% (Sect.~\ref{sec:bert}); all architectures converge on the same manic-pole floor. The Manic-recall ceiling in Table~\ref{tab:state-metrics} thus reflects a structural mismatch, not solely a model limitation (downstream implications in Limitations).
+A pronounced manic-pole recall gap persists: the LLM achieves 87.9\% recall for \emph{Depressive} yet only 35.7\% for \emph{Hypomanic} and 6.7\% for \emph{Manic} on the held-out subset. Two factors compound this asymmetry. First, a model property: depressive language has stereotypical surface markers (negativity, self-focus, hopelessness), while manic-pole states often manifest through \emph{described behaviors} (spending sprees, reduced sleep need, grandiose plans) narrated in any tone, and the LLM reads tone rather than the clinical significance of the behaviors described (see Pattern~1 in Sect.~\ref{sec:error}). Second, a label--text consistency issue in the BD-Risk annotation rule: as specified by Lee et al.~\cite{lee2024detecting} (Section~3.2), ``posts exhibiting both manic and depressive moods are regarded as manic moods'', an asymmetric tie-breaker that elevates any mixed manic+depressive post to the manic side. Combined with the dataset's MDD$\rightarrow$BD selection criteria, this yields gold-label \emph{Manic} ($+3$) posts whose textual content matches BD-Risk's own definition of $-3$ (``extreme anxiety and having suicidal thoughts''). A single-post LLM applying clinical-safety priors (classifying explicit self-harm content as \emph{Depressive}) will systematically underperform on these posts, since the only signal it has is the very content the labeling rule overrode. The cross-model evaluation (Sect.~\ref{sec:crossmodel}) provides direct evidence for the structural interpretation: across six LLMs from five providers, \emph{Manic} recall ranges from 0.0\% (DeepSeek V4 Pro, GLM-5.1) to 20.0\% (Gemini 3.5 Flash), and the supervised ModernBERT baseline averages 4.0\% (Sect.~\ref{sec:bert}); all architectures converge on the same manic-pole floor. The Manic-recall ceiling in Table~\ref{tab:state-metrics} thus reflects a structural mismatch, not solely a model limitation (downstream implications in Limitations).
 
 \section{Limitations}
 
 The proposed method and corpus are subject to constraints that we group into evaluation scope, gold-state derivation, manic-pole interpretability, cohort framing, and release-time reliability.
 
-The cross-model evaluation (Sect.~\ref{sec:crossmodel}) confirms schema portability across five additional LLMs (macro F1 0.432--0.564 on the full 145-post holdout), yet the corpus itself was annotated exclusively with Gemini 3.1 Pro; per-class reliability estimates thus remain Gemini-specific. The quantitative validation is also at the post level only, because few per-post expert-labeled BD datasets at sufficient scale are available for research use (BD-Risk was obtained through a formal data request and ethics review, and comparable shared-task corpora face similar access barriers); period-level trends, a key contribution of the method, are not externally validated.
+Regarding evaluation scope, the cross-model evaluation (Sect.~\ref{sec:crossmodel}) confirms schema portability across five additional LLMs (macro F1 0.432--0.564 on the full 145-post holdout), yet the corpus itself was annotated exclusively with Gemini 3.1 Pro; per-class reliability estimates thus remain Gemini-specific. The quantitative validation is also at the post level only, because few per-post expert-labeled BD datasets at sufficient scale are available for research use (BD-Risk was obtained through a formal data request and ethics review, and comparable shared-task corpora face similar access barriers); period-level trends, a key contribution of the method, are not externally validated.
 
-Gold states are derived from BD-Risk ordinal mood labels via a deterministic mapping (Table~\ref{tab:mapping}) rather than being directly annotated as categorical states. This introduces boundary imprecision (e.g., mood label $+1$ may reflect mild hypomania rather than stable mood, and an ordinal intensity score need not match a categorical clinical judgment), and mapping the ordinal labels (inter-expert Krippendorff's $\alpha$ = 0.87) to categories amplifies disagreement at boundaries. Some apparent misclassifications may thus be mapping artifacts, and reported accuracies should be read as lower bounds on the schema's true reliability.
+For gold-state derivation, the categorical states used as ground truth are derived from BD-Risk mood labels via a deterministic mapping (Table~\ref{tab:mapping}) rather than being directly annotated by experts as categorical states. This mapping introduces imprecision: the boundary between adjacent categories is inherently uncertain (e.g., BD-Risk mood label $+1$ may reflect mild hypomania rather than stable mood), and the ordinal intensity score does not always correspond to a categorical clinical judgment (e.g., a recovery narrative within an ongoing depressive episode may receive a neutral mood score while remaining clinically depressive). Inter-expert agreement (Krippendorff's $\alpha$ = 0.87) is measured at the ordinal level, and mapping to categorical states amplifies disagreement at boundaries. Consequently, some apparent misclassifications may reflect mapping artifacts, and the reported accuracy figures should be interpreted as lower bounds on the schema's true reliability.
 
-Two factors limit how the Manic-pole numbers can be read. First, the held-out \emph{Manic} class is small ($n=15$, because the entire BD-Risk dataset contains only 28 mood-$+3$ posts); the 95\% confidence interval around the Manic-F1 estimate is wide ($\pm$ approximately 13 percentage points), and small Manic-F1 differences should not be interpreted as significant. Second, the Manic-recall ceiling of 6.7\% is bounded by a structural mismatch between BD-Risk's asymmetric tie-breaking rule and the textual evidence available to a per-post classifier (full analysis in Sect.~\ref{sec:discussion}); recovering label-text consistency would require either re-annotation under text-only criteria or a longitudinal evaluation protocol that supplies the temporal context the annotators had access to.
+Regarding manic-pole interpretability, two factors limit how the Manic-pole numbers can be read. First, the held-out \emph{Manic} class is small ($n=15$, because the entire BD-Risk dataset contains only 28 mood-$+3$ posts); the 95\% confidence interval around the Manic-F1 estimate is wide ($\pm$ approximately 13 percentage points), and small Manic-F1 differences should not be interpreted as significant. Second, the Manic-recall ceiling of 6.7\% is bounded by a structural mismatch between BD-Risk's asymmetric tie-breaking rule and the textual evidence available to a per-post classifier (full analysis in Sect.~\ref{sec:discussion}); recovering label-text consistency would require either re-annotation under text-only criteria or a longitudinal evaluation protocol that supplies the temporal context the annotators had access to.
 
-Patient verification is LLM-based, screening for self-disclosed BD diagnosis in a user's posting history rather than providing clinical confirmation; it follows prior BD social-media datasets~\cite{sekulic2018not,jagfeld2021understanding} with stricter per-user evidence gating than a one-post membership rule. The cohort may include \texttt{verified} or \texttt{probable} users describing an unconfirmed diagnosis and conversely exclude users with BD who never disclose it, and Reddit is a self-selected, asynchronous channel whose relationship to clinically observed mood states requires further study. Downstream uses requiring clinician-confirmed status should treat the cohort as an LLM-screened self-identified sample, not a clinical cohort.
+For cohort framing, patient verification is LLM-based and screens for self-disclosure of a BD diagnosis in the user's posting history; it does not constitute clinical confirmation. This follows the inclusion model used in prior BD social-media datasets~\cite{sekulic2018not,jagfeld2021understanding} with stricter per-user evidence gating than a one-post membership rule. Some users in the \texttt{verified} or \texttt{probable} tiers may describe a BD diagnosis without one having been clinically established, and the cohort conversely excludes users with BD who never disclose the diagnosis publicly. Reddit is also a self-selected, asynchronous channel, so the relationship between its posts and clinically observed mood states requires further investigation. Downstream uses that require clinician-confirmed BD status should treat the cohort as an LLM-screened self-identified sample rather than a clinical cohort.
 
-All annotations are produced entirely by the LLM without manual spot-checking. Per-class reliability decreases from \emph{Depressive} through \emph{Hypomanic} to \emph{Manic} (see Table~\ref{tab:state-metrics}); \emph{Manic} labels should be used with caution given both the small support and the manic-pole interpretability constraints above.
+Regarding release-time reliability, all period-level (1,794) and post-level (15,423) annotations are produced entirely by the LLM; we have not yet conducted manual spot-checking on a stratified sample across mood states, confidence levels, and trend directions. The held-out validation suggests stronger reliability for \emph{Depressive} labels (87.9\% recall, 73.4\% F1) than for manic-pole labels; \emph{Hypomanic} labels have moderate reliability (35.7\% recall, 50.0\% F1) with high precision (83.3\%) when the label is assigned; \emph{Manic} labels should be used with caution given both the small support and the manic-pole interpretability constraints above.
 
 \section{Conclusion}
 
@@ -389,7 +436,7 @@ The validation separates the proposed method's two failure sources: 87.9\% depre
 
 This study involves analysis of publicly posted social media content discussing sensitive mental health experiences. The study protocol was reviewed and approved by the Research Ethics Committee of the University of Tsukuba (approval no.~25-188). We additionally adhere to Reddit's privacy policy and social media research ethics guidelines~\cite{harrigian2021state}.
 
-Before public release, all post content undergoes LLM-based de-identification across five risk-ranked PII categories (identifiers, quasi-identifiers, contact information, linkage codes, personal identification codes), each detected span replaced by a category-specific placeholder. Unlike rule-based or NER approaches, the LLM also detects accumulated long-span quasi-identifiers (individually innocuous details such as occupation, location, and family structure that jointly narrow identification to one person) while preserving clinically relevant content (medications, diagnoses, symptoms, relative temporal expressions). The full taxonomy and prompt are provided in the supplementary repository.
+Before public release, all post content undergoes LLM-based de-identification. We classify personally identifiable information into five risk-ranked categories: \emph{identifiers} (direct names), \emph{quasi-identifiers} (combinable details such as locations, organizations, dates, or unique circumstances), \emph{contact information}, \emph{linkage codes}, and \emph{personal identification codes}, replacing each detected span with a category-specific placeholder (e.g., \texttt{[IDENTIFIER]}, \texttt{[QUASI\_ID]}). The LLM also surfaces long-span quasi-identifiers where individually innocuous details (occupation, location, family structure) could jointly narrow identification to one person, a pattern that rule-based or NER approaches typically miss. The taxonomy preserves clinically relevant content (medication names, diagnosis types, symptom descriptions, relative temporal expressions) while removing identifying information. The full taxonomy and prompt are provided in the supplementary repository.
 
 The dataset retains only text content and temporal information necessary for mood-state annotation; author usernames are replaced with anonymized identifiers, and subreddit membership and post metadata that could facilitate re-identification are excluded from the published dataset. To reduce search-based re-identification risk, released timelines use relative temporal offsets rather than exact posting times. Because LLM-based de-identification may miss residual quasi-identifiers, public release is conditioned on a pre-release privacy audit of a stratified sample. The dataset is intended solely for computational mental-health research and must not be used for re-identification, commercial profiling, or clinical decision-making without appropriate expert oversight.
 
@@ -398,7 +445,7 @@ The dataset retains only text content and temporal information necessary for moo
 % the text. (Multiple appendices would be "Appendix 1", etc.)
 \section*{Appendix}
 
-Four system prompts drive the pipeline: (A) the post-level annotation prompt with the full DSM-5-grounded schema and eight synthetic few-shot examples; (B) the 14-day period-level trend prompt; (C) the patient verification prompt; and (D) the de-identification prompt. A minimal zero-shot variant of prompt~(A) is used for the schema contribution comparison (Sect.~\ref{sec:evaldesign}). Full prompt texts, pipeline source, and evaluation scripts are released at \url{https://anonymous.4open.science/r/bd-state-annotation/}.
+Four prompts drive the pipeline: (A) post-level annotation with the full DSM-5-grounded schema, clinical guidance rules (\emph{SAFETY OVERRIDE}, \emph{Behavior Over Tone}, \emph{Whole-Post Evidence Weighting}, \emph{Improvement-Narrative}, \emph{Substance vs.~Endogenous Mood}), mixed-features rules, and eight synthetic few-shot examples; (B) 14-day period-level trend annotation; (C) patient verification (three-tier classifier in Sect.~\ref{sec:resource}); and (D) de-identification before release (Sect.~\ref{sec:ethics}). A minimal zero-shot variant of prompt~(A), containing only the task definition and output format, supports the schema comparison (Sect.~\ref{sec:evaldesign}). Full prompt texts, pipeline source, and evaluation scripts are released at \url{https://anonymous.4open.science/r/bd-state-annotation/}.
 
 \begin{credits}
 \subsubsection{\discintname}
