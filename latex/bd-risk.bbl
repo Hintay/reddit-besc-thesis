@@ -1,0 +1,124 @@
+\begin{thebibliography}{10}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\providecommand{\doi}[1]{https://doi.org/#1}
+
+\bibitem{apa2013dsm5}
+{American Psychiatric Association}: Diagnostic and Statistical Manual of Mental
+  Disorders. American Psychiatric Publishing, Arlington, VA, 5th edn. (2013).
+  \doi{10.1176/appi.books.9780890425596}
+
+\bibitem{chancellor2020methods}
+Chancellor, S., De~Choudhury, M.: Methods in predictive techniques for mental
+  health status on social media: A critical review. npj Digital Medicine
+  \textbf{3}(1), ~43 (2020). \doi{10.1038/s41746-020-0233-7}
+
+\bibitem{cohan2018smhd}
+Cohan, A., Desmet, B., Yates, A., Soldaini, L., MacAvaney, S., Goharian, N.:
+  {SMHD}: A large-scale resource for exploring online language usage for
+  multiple mental health conditions. In: Proceedings of the 27th International
+  Conference on Computational Linguistics (COLING). pp. 1485--1497 (2018)
+
+\bibitem{coppersmith2015clpsych}
+Coppersmith, G., Dredze, M., Harman, C., Hollingshead, K., Mitchell, M.:
+  {CLPsych 2015} shared task: Depression and {PTSD} on {Twitter}. In:
+  Proceedings of the 2nd Workshop on Computational Linguistics and Clinical
+  Psychology. pp. 31--39 (2015). \doi{10.3115/v1/W15-1204}
+
+\bibitem{dechoudhury2013predicting}
+De~Choudhury, M., Gamon, M., Counts, S., Horvitz, E.: Predicting depression via
+  social media. In: Proceedings of the International AAAI Conference on Web and
+  Social Media. vol.~7, pp. 128--137 (2013). \doi{10.1609/icwsm.v7i1.14432}
+
+\bibitem{faurholt2018smartphone}
+Faurholt-Jepsen, M., Bauer, M., Kessing, L.V.: Smartphone-based objective
+  monitoring in bipolar disorder: Status and considerations. International
+  Journal of Bipolar Disorders  \textbf{6}(1), ~6 (2018).
+  \doi{10.1186/s40345-017-0110-8}
+
+\bibitem{team2024gemini}
+{Gemini Team}, Anil, R., Borgeaud, S., et~al.: Gemini: A family of highly
+  capable multimodal models. arXiv preprint arXiv:2312.11805  (2024)
+
+\bibitem{gilardi2023chatgpt}
+Gilardi, F., Alizadeh, M., Kubli, M.: {ChatGPT} outperforms crowd workers for
+  text-annotation tasks. Proceedings of the National Academy of Sciences
+  \textbf{120}(30),  e2305016120 (2023). \doi{10.1073/pnas.2305016120}
+
+\bibitem{grande2016bipolar}
+Grande, I., Berk, M., Birmaher, B., Vieta, E.: Bipolar disorder. The Lancet
+  \textbf{387}(10027),  1561--1572 (2016). \doi{10.1016/S0140-6736(15)00241-X}
+
+\bibitem{harrigian2021state}
+Harrigian, K., Aguirre, C., Dredze, M.: On the state of social media data for
+  mental health research. In: Proceedings of the 7th Workshop on Computational
+  Linguistics and Clinical Psychology: Improving Access. pp. 15--24.
+  Association for Computational Linguistics (2021).
+  \doi{10.18653/v1/2021.clpsych-1.2}
+
+\bibitem{hirschfeld2002guideline}
+Hirschfeld, R.M., Bowden, C.L., Gitlin, M.J., Keck, P.E., Suppes, T., Thase,
+  M.E., Wagner, K.D., Perlis, R.H.: Practice guideline for the treatment of
+  patients with bipolar disorder (revision). American Journal of Psychiatry
+  \textbf{159}(4 Suppl),  1--50 (2002)
+
+\bibitem{jagfeld2021understanding}
+Jagfeld, G., Lobban, F., Rayson, P., Jones, S.: Understanding who uses
+  {Reddit}: Profiling individuals with a self-reported bipolar disorder
+  diagnosis. In: Proceedings of the 7th Workshop on Computational Linguistics
+  and Clinical Psychology: Improving Access. pp. 1--14 (2021).
+  \doi{10.18653/v1/2021.clpsych-1.1}
+
+\bibitem{lee2024detecting}
+Lee, D., Jeon, H., Son, S., Park, C., An, J., Kim, S., Han, J.: Detecting
+  bipolar disorder from misdiagnosed major depressive disorder with mood-aware
+  multi-task learning. In: Proceedings of the 2024 Conference of the North
+  American Chapter of the Association for Computational Linguistics: Human
+  Language Technologies (NAACL-HLT). pp. 4965--4977. Association for
+  Computational Linguistics (2024). \doi{10.18653/v1/2024.naacl-long.278}
+
+\bibitem{sekulic2018not}
+Sekuli{\'c}, I., Gjurkovi{\'c}, M., {\v{S}}najder, J.: Not just depressed:
+  Bipolar disorder prediction on {Reddit}. In: Proceedings of the 9th Workshop
+  on Computational Approaches to Subjectivity, Sentiment and Social Media
+  Analysis. pp. 72--78 (2018). \doi{10.18653/v1/W18-6211}
+
+\bibitem{torous2016new}
+Torous, J., Kiang, M.V., Lorme, J., Onnela, J.P.: New tools for new research in
+  psychiatry: A scalable and customizable platform to empower data driven
+  smartphone research. JMIR Mental Health  \textbf{3}(2), ~e16 (2016).
+  \doi{10.2196/mental.5165}
+
+\bibitem{truong2020selective}
+Truong, C., Oudre, L., Vayatis, N.: Selective review of offline change point
+  detection methods. Signal Processing  \textbf{167},  107299 (2020).
+  \doi{10.1016/j.sigpro.2019.107299}
+
+\bibitem{vieta2018misdiagnosis}
+Vieta, E., Berk, M., Schulze, T.G., Carvalho, A.F., Suppes, T., Calabrese,
+  J.R., Gao, K., Miskowiak, K.W., Grande, I.: Bipolar disorders. Nature Reviews
+  Disease Primers  \textbf{4}(1),  1--16 (2018). \doi{10.1038/nrdp.2018.8}
+
+\bibitem{warner2025modernbert}
+Warner, B., Chaffin, A., Clavi{\'e}, B., Weller, O., Hallstr{\"o}m, O.,
+  Taghadouini, S., Gallagher, A., Biswas, R., Ladhak, F., Aarsen, T., Cooper,
+  N., Adams, G., Howard, J., Poli, I.: Smarter, better, faster, longer: A
+  modern bidirectional encoder for fast, memory efficient, and long context
+  finetuning and inference. In: Proceedings of the 63rd Annual Meeting of the
+  Association for Computational Linguistics (ACL). Association for
+  Computational Linguistics (2025)
+
+\bibitem{xu2024mental}
+Xu, X., Yao, B., Dong, Y., Yu, H., Hendler, J., Dey, A.K., Wang, D.:
+  Mental-{LLM}: Leveraging large language models for mental health prediction
+  via online text data. Proceedings of the ACM on Interactive, Mobile, Wearable
+  and Ubiquitous Technologies  \textbf{8}(1),  1--32 (2024).
+  \doi{10.1145/3643540}
+
+\bibitem{yang2024mentallama}
+Yang, K., Zhang, T., Alhuzali, H., Ananiadou, S.: Mental{LL}a{M}a:
+  Interpretable mental health analysis on social media with large language
+  models. In: Proceedings of the ACM Web Conference 2024 (WWW). pp. 797--806
+  (2024). \doi{10.1145/3589334.3648137}
+
+\end{thebibliography}
