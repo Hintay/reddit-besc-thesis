@@ -203,3 +203,28 @@ cd /Volumes/Working/Git/RedditBipolarDetection/thesis && git add bd-risk.typ bd-
 ### 0.9 should 4 项完了（2026-08-09）
 R3-4（跨域限制）＋R3-6（窗口/锚点敏感性、兼答 R4-D2）→ Limitations 评价范围段；R3-7（八例=错误模式覆盖、未做数目消融）→ §3.3；R3-10（zero-shot=schema 整体消融）→ §4.7.2。全部 \rev 标注。
 **页数**：clean 22 页・末页已满 → 压缩任务 **~2.0 页**。剩余：压缩讨论、optional 项（A8 摘要句等）、共著者送付、版权表、CMT 题目、提出打包。
+
+### 0.10 Tier A 压缩（2026-08-09 执行）
+**A2（Discussion 的 NO_DATA absence-modeling 展望句）＝导师点名保留 → 加入保护清单，永久排除**。
+执行：A1 Intro 数字复述删除、A3 Limitations 三处（数据获取括注、第二个 e.g.、release-time 段的 Table 2 数字复读）、A4 表注三处（Table 1 第二句、Table 7 趋势词汇表、Table 8 解读句）、A5 Appendix 规则名枚举。全部 \del 标注。
+
+### 0.11 Cross-Model 压缩（2026-08-09 执行）
+8 处：§4.7.3 引入段压缩（设计复述→指向 §4.3）、观察段去框架句＋二三点合并、Flash 段删表值复读与结论重复、GPT-5.5 段删拒答原文引用/42 帖逐类分解/(2/4 vs 1/4)（此三处 \del）、§4.3 bullet 删 per-model 从句、结论(3) 删 0.564 复读。实测省 ~0.21 页。**累计余量：clean 末页 402pt/622pt ≈ 内容 21.65 页当量 → 缺口 ~1.65 页**。
+
+### 0.12 Tier B 执行（2026-08-09）
+35 处编辑全部应用（Fig.2 按本人指示保留）：B1 Related Work（含 2.2 段落统合＋孤儿引用 torous2016new/chancellor2020methods 退出文献表）、B3 Table 5 瘦身 8→4 行（条件宏、Manic F1 数值并入 B6 新句、Pattern 4 交叉引用配套删除）、B4 Pattern 修剪 18 刀（合成案例与规则名全部保留）、B5 Ethics ¶2–3、B6 §4.7.2 第三观察改写＋§4.6 结尾合并（顺带消除 "constructing 314 expert-labeled" 的措辞不一致）。
+**实测：clean build 21 页・末页 270pt/622pt（43%）→ 内容 ~20.43 页当量、距 20 页缺口 ~0.43 页**。
+剩余弹药：B1 扩展 (a) 0.578 括注 0.5 行 (b) 2.1 gap 句 1.5 行 (c) dechoudhury 退出文献表 2–3 行；Limitations 连接语 ~3 行；Intro 进一步；Tier C 措辞复用。
+
+### 0.13 逐项删减→20 页达成（2026-08-09）
+强候选 13 项（E1 Limitations 重复句、E2 §4.2 两句、E3 §3.2 change-point 句[truong 退出文献表]、E4 Intro 三处枚举＋schema 句、E5 Uncertain 枚举、E6 Appendix、E7 Discussion 括注、E8 0.578 括注＋2.1 gap 从句、E9 §4.3 尾）＋中候选 4 项（M1 §4.4 选型理由、M3 §5 静态快照对比、M2 §4.4 period 字段复述、M4 Limitations 开头枚举）逐项应用。
+**最终：clean build = 20 页（末页 658/665pt 满）／tracking 23 页。全文无 ?? 引用。**
+⚠️ 零余量：共著者若要求增补，需等量删减对冲。后备候选：§3.2 evidence-extraction 句 1.5 行、Fig.3 caption 期间数 0.5 行、Conclusion 开头数字复述 ~2 行、optional A8 摘要句（需先腾位）。
+
+### 0.14 压缩负面影响审查＋修复（2026-08-09）
+5 维度×18 代理对抗审查：确认 13 项（去重 4 组）＋低危 18 项，全部修复或有意接受：
+- **高危（已修复）**：Limitations "five additional LLMs on the full holdout" 事实反转（压缩时把 GPT-5.5 算进了完成 holdout 的模型）→ 改 "four additional LLMs that completed...; the fifth, GPT-5.5, declined"；Contribution 2 的区间加 "for the four completing models" 限定
+- **中危（已修复）**：Intro "The recall asymmetry" 悬空指代（补 antecedent 短语）；"( 89.0%" 括号内漏空格伪影 ×3（del/rev 接缝空格进入 clean build）
+- **低危（已修复 8 项）**：Discussion "as does" 错误省略、"rather than from" 平行结构、"consistency issue" 术语、"in-text"→"in the text"、Pattern 1 悬空 "it"、"verbatim" 残留、§3.2/§4.5 两处 "expert labels" 与 A2 术语统一
+- **有意接受（记录在案）**：Table 5 删行后 per-class 数值仅存于正文叙述（与"数值单处存放"原则一致，正文完整叙述了四类变化）；Pattern 6 空洞化（组会批准的全删）；del/rev 接缝的双空格 glue（不可见）；Pattern 开场 "is the LLM ignoring" 口语性（本人保留的散文化）
+修复后 clean build 仍 20 页整、零 Overfull、无断引用（tracking 版 §4.5 一处 20pt Overfull 系 del+rev 并存所致，仅评审副本可见）。
