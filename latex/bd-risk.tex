@@ -470,12 +470,17 @@ Before public release, all post content undergoes LLM-based de-identification. W
 % Per the Springer proceedings instructions, a single appendix is designated
 % "Appendix" (unnumbered), placed before the references, and referred to in
 % the text. (Multiple appendices would be "Appendix 1", etc.)
-\section*{Acknowledgments}
-\rev{This work was supported by JSPS KAKENHI Grant Number JP26K21393.}
-
 \section*{Appendix}
 
 Four prompts drive the pipeline: (A) post-level annotation with the full DSM-5-grounded schema, clinical guidance rules\del{ (\emph{SAFETY OVERRIDE}, \emph{Behavior Over Tone}, \emph{Whole-Post Evidence Weighting}, \emph{Improvement-Narrative}, \emph{Substance vs.~Endogenous Mood})}, mixed-features rules, and eight synthetic few-shot examples; (B) 14-day period-level trend annotation; (C) patient verification (three-tier classifier in Sect.~\ref{sec:pilot}); and (D) de-identification before release (Sect.~\ref{sec:ethics}). \del{A minimal zero-shot variant of prompt~(A), containing only the task definition and output format, supports the schema comparison (Sect.~\ref{sec:evaldesign}).} Full prompt texts, pipeline source, and evaluation scripts are released at \url{https://anonymous.4open.science/r/bd-state-annotation/}.
+
+\begin{credits}
+\subsubsection{\ackname}
+\rev{This work was supported by JSPS KAKENHI Grant Number JP26K21393.}
+
+\subsubsection{\discintname}
+\rev{The authors have no competing interests to declare that are relevant to the content of this article.}
+\end{credits}
 
 \bibliographystyle{splncs04}
 \bibliography{refs}
