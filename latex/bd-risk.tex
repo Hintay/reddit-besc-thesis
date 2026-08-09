@@ -135,7 +135,7 @@ For each individual post (submission or comment), the LLM assigns a categorical 
 \item \textbf{Uncertain:} Reserved for truly uninterpretable posts; the LLM must attempt classification before resorting to this label.
 \end{itemize}
 
-The framework also supports a \texttt{with\_mixed\_features} specifier (following DSM-5 mixed-features criteria). Before applying this specifier, the prompt requires the LLM to extract an explicit list of opposite-pole symptoms, and only assigns \texttt{with\_mixed\_features} when three or more clear opposite-pole symptoms are documented. This evidence-extraction step prevents the mixed-features specifier from being used as a vague neutral label.
+The framework also supports a \texttt{with\_mixed\_features} specifier (following DSM-5 mixed-features criteria). Before applying this specifier, the prompt requires the LLM to extract an explicit list of opposite-pole symptoms, and only assigns \texttt{with\_mixed\_features} when three or more clear opposite-pole symptoms are documented. \del{This evidence-extraction step prevents the mixed-features specifier from being used as a vague neutral label.}
 
 \subsubsection{Period-Level Trend Analysis}
 For longitudinal mood trajectory modeling, we partition each user's posting history into consecutive fixed-length periods (default: 14~days). The 14-day window length was set in consultation with clinical advisors and is grounded in DSM-5 episode-duration criteria, which define a major depressive episode as lasting at least two weeks and a manic episode as lasting at least one week~\cite{apa2013dsm5}; a 14-day window therefore captures the minimum duration of a full depressive episode and allows observation of manic-episode onset and progression. Periods are anchored at the user's first post (day 0) and advance in strict half-open intervals $[t_k, t_k + 14)$; submissions and comments are jointly assigned to the period containing their timestamp. All periods from the user's first to last post are defined; periods without posts receive a \texttt{NO\_DATA} label rather than being skipped, preserving a continuous time grid for trajectory modeling. Fig.~\ref{fig:period-slicing} illustrates the segmentation.
@@ -375,7 +375,7 @@ We continuously crawl three BD-focused subreddits (r/bipolar, r/BipolarReddit, r
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/fig_timeline.pdf}
-\caption{Mood trajectories for four anonymized users (A: depressive with fluctuation, 49 periods; B: hypomanic-leaning with frequent manic transitions, 74 periods; C: manic-dominant with \del{rapid cycling} \rev{a pattern consistent with rapid cycling}, 36 periods; D: dense posting with high mixed-features incidence, 25 periods). Bars = 14-day periods (color = dominant state; hatch = trend direction; thin black border = \texttt{with\_mixed\_features}); dots above bars = post-level annotations, color-coded by post state.}
+\caption{Mood trajectories for four anonymized users (A: depressive with fluctuation\del{, 49 periods}; B: hypomanic-leaning with frequent manic transitions\del{, 74 periods}; C: manic-dominant with \del{rapid cycling} \rev{a pattern consistent with rapid cycling}\del{, 36 periods}; D: dense posting with high mixed-features incidence\del{, 25 periods}). Bars = 14-day periods (color = dominant state; hatch = trend direction; thin black border = \texttt{with\_mixed\_features}); dots above bars = post-level annotations, color-coded by post state.}
 \label{fig:user-timeline}
 \end{figure}
 
@@ -456,7 +456,7 @@ Regarding release-time reliability, all period-level (1,794) and post-level (15,
 
 \section{Conclusion}
 
-The validation separates the proposed method's two failure sources: 87.9\% depressive recall suggests that the schema captures dominant depressive-pole markers with reasonable coverage, while the 6.7\% manic recall appears strongly influenced by a structural label-text consistency issue at the manic pole rather than by prompting alone (see Sect.~\ref{sec:discussion}). Without external period-level ground truth, the 1,794 trajectories are validated indirectly through post-level results. Three priorities follow: (1) expert annotation of period-level trends for direct longitudinal validation; (2) a stratified human-in-the-loop audit across mood states, confidence levels, and trend directions with inter-annotator agreement; and (3) \del{cross-model probes beyond the current single-vendor evaluation, which is constrained by GPT-5.5 refusals} \rev{re-annotation of the corpus with a higher-performing model (e.g., Gemini 3.5 Flash; Sect.~\ref{sec:crossmodel}) to improve manic-pole coverage, combined with targeted prompt revision for the behavioral-cue recognition failure documented in Pattern~1 of Sect.~\ref{sec:error}}. The resulting corpus is intended for computational mental health research and should not be used as a clinical diagnostic tool.
+The validation separates the proposed method's two failure sources: 87.9\% depressive recall suggests that the schema captures dominant depressive-pole markers\del{ with reasonable coverage}, while the 6.7\% manic recall appears strongly influenced by a structural label-text consistency issue at the manic pole rather than by prompting alone (see Sect.~\ref{sec:discussion}). Without external period-level ground truth, the 1,794 trajectories are validated indirectly through post-level results. Three priorities follow: (1) expert annotation of period-level trends for direct longitudinal validation; (2) a stratified human-in-the-loop audit across mood states, confidence levels, and trend directions with inter-annotator agreement; and (3) \del{cross-model probes beyond the current single-vendor evaluation, which is constrained by GPT-5.5 refusals} \rev{re-annotation of the corpus with a higher-performing model (e.g., Gemini 3.5 Flash; Sect.~\ref{sec:crossmodel}) to improve manic-pole coverage, combined with targeted prompt revision for the behavioral-cue recognition failure documented in Pattern~1 of Sect.~\ref{sec:error}}. The resulting corpus is intended for computational mental health research and should not be used as a clinical diagnostic tool.
 
 \section{Ethical Considerations}
 \label{sec:ethics}
@@ -470,9 +470,14 @@ Before public release, all post content undergoes LLM-based de-identification. W
 % Per the Springer proceedings instructions, a single appendix is designated
 % "Appendix" (unnumbered), placed before the references, and referred to in
 % the text. (Multiple appendices would be "Appendix 1", etc.)
+\begin{credits}
+\subsubsection{\ackname}
+\rev{This work was supported by JSPS KAKENHI Grant Number JP26K21393.}
+\end{credits}
+
 \section*{Appendix}
 
-Four prompts drive the pipeline: (A) post-level annotation with the full DSM-5-grounded schema, clinical guidance rules\del{ (\emph{SAFETY OVERRIDE}, \emph{Behavior Over Tone}, \emph{Whole-Post Evidence Weighting}, \emph{Improvement-Narrative}, \emph{Substance vs.~Endogenous Mood})}, mixed-features rules, and eight synthetic few-shot examples; (B) 14-day period-level trend annotation; (C) patient verification (three-tier classifier in Sect.~\ref{sec:pilot}); and (D) de-identification before release (Sect.~\ref{sec:ethics}). A minimal zero-shot variant of prompt~(A)\del{, containing only the task definition and output format,} supports the schema comparison (Sect.~\ref{sec:evaldesign}). Full prompt texts, pipeline source, and evaluation scripts are released at \url{https://anonymous.4open.science/r/bd-state-annotation/}.
+Four prompts drive the pipeline: (A) post-level annotation with the full DSM-5-grounded schema, clinical guidance rules\del{ (\emph{SAFETY OVERRIDE}, \emph{Behavior Over Tone}, \emph{Whole-Post Evidence Weighting}, \emph{Improvement-Narrative}, \emph{Substance vs.~Endogenous Mood})}, mixed-features rules, and eight synthetic few-shot examples; (B) 14-day period-level trend annotation; (C) patient verification (three-tier classifier in Sect.~\ref{sec:pilot}); and (D) de-identification before release (Sect.~\ref{sec:ethics}). \del{A minimal zero-shot variant of prompt~(A), containing only the task definition and output format, supports the schema comparison (Sect.~\ref{sec:evaldesign}).} Full prompt texts, pipeline source, and evaluation scripts are released at \url{https://anonymous.4open.science/r/bd-state-annotation/}.
 
 \bibliographystyle{splncs04}
 \bibliography{refs}
