@@ -277,3 +277,9 @@ llncsdoc/Springer 指南对照的 6 维度×11 代理审计：封面区・摘要
 
 ### 0.21 label-text 表記統一（2026-08-15）
 摘要点検の副産物: "label-text"（連字符・投稿版多数形 6 箇所、摘要含む）vs "label--text"（en-dash・4 箇所、うち 2 箇所は投稿版由来で投稿版自体が不統一）→ 連字符に統一。\rev 内 2 箇所（L320/L346）は直接修正、平文 2 箇所（L290/L439）は \del+\rev。摘要は無変更（点検結果: 摘要は修正不要と確認済み）。clean 20 頁（665pt）・tracking 24 頁・零 error・clean PDF で en-dash 形 0 件確認。
+
+### 0.22 剥離版作成＋提出パッケージ同期（2026-08-15）
+- 倉庫 deidentify.md の Yada et al. (2026) 帰属を復元（匿名化残滓; commit c7d509b push 済）→ **公開倉庫の 4 prompt 全てが実行版と逐字一致確定**（batch_single=improved_v6・trend=improved_v2・verification=baseline_v1・deidentify=v1; ローカルの YAML frontmatter 剥離のみが差分だった）
+- 剥離スクリプト（scratchpad/strip_markup.py, 全ステップ assert 付き）で bd-risk-final.tex 生成: \del 124 削除・\rev 108 展開・トラッキング序文/説明枠/xcolor/ulem 除去。**単独コンパイル 20 頁ちょうど(665pt)・零 error**。clean 版との全文比較=**逐字一致**（差分は del/rev 接縫の二重空白 glue が単一空白になったことによる断詞位置移動のみ=剥離版の方が正しい組版）
+- camera_ready/ 同期完了: BESC2026_paper96.pdf・source/{bd-risk.tex, bd-risk.bbl(新 15 件エントリ+ModernBERT DOI), refs.bib}、figures 無変更確認、source 単独コンパイル 20 頁検証済
+- 残: 署名済み版権表の差し替え（本人）→ ZIP 化 → CMT 提出。thesis repo push も本人。
