@@ -303,3 +303,9 @@ Springer 指南 p.2: 責任著者メール=必須（充足済）、全著者メ�
 - xu2024mental: 欠落著者 **Gabriel, Ghassemi** を復元
 訂正で clean 21 頁化→補償削減 5 件（\del＋dnote 付き）: Conclusion の用途制限文（Ethics 節と重複）・監査の層別枚挙・附録の規則枚挙・去識別分類の括弧枚挙（公開リポジトリ deidentify.md に完備）・Discussion の (see Sect.5) 指針。**flushbottom の節見出しグルーが小刻み削減を吸収する現象を確認**（尾部は見出し密集帯）→ p19 頁頭直撃の分類枚挙削減で突破。**clean 20 頁・654/665pt（11pt=約 1 行の余裕が初めて生まれた）**・tracking 24 頁・final 逐字一致・包内 20 頁訂正反映済（commit bb1b385）。
 残り minor（提出可のまま）: 断詞 3 連×2 箇所・Fig.3 凡例に Uncertain 灰色エントリなし。既知の user 側残: 署名版権表・CMT 題目・push。
+
+### 0.26 削除内容の復元（共著者ラウンド終了後・2026-08-16）
+本人指示「共著者意見なし→削除済みの最重要内容を 20 頁まで復元」。**制約判明**: 文献表末条目の widow 規則により上流 +1 行が常に 2 行溢れ（139pt 再現×3）→ 復元可能なのは所属段落の末行余白に吸収される断片のみ。
+- **復元 4 件**（投稿版原文の \del 解除・マーク無し）: Fig.3 caption の per-user 期間数（49/74/36/25 periods）・附録 (A) の mixed-features rules 枚挙・Conclusion の (see Sect.~6) 指針・（P6 短釈義は維持）
+- **復元不可で断念**（各々 2 行溢れ実測）: §3.2 evidence-extraction 理由文・P6 完全証拠文・Conclusion 結び文・去識別分類枚挙・層別次元・at the manic pole/with reasonable coverage（Conclusion 段落は飽和）
+最終状態: **clean 20 頁・654/665pt**・tracking 24 頁・final 逐字一致・包同期済（commit 参照）。
