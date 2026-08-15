@@ -287,3 +287,11 @@ llncsdoc/Springer 指南对照的 6 维度×11 代理审计：封面区・摘要
 ### 0.23 全著者メール追加（2026-08-15）
 Springer 指南 p.2: 責任著者メール=必須（充足済）、全著者メール=強く推奨（各著者に出版後 Springer Nature Link の個人 access link が届く）→ 3 名分追加: \email{\{lin.jiefeng.tkb\_ge, watanabe.koichiro.ge\}@u.tsukuba.ac.jp, yada@slis.tsukuba.ac.jp}（samplepaper の同域グループ記法）。ヘッダ 1 行増だが本文前で吸収され clean/final とも 20 頁維持。著者ブロックはマーク対象外（説明枠の既定方針通り）。剥離版・パッケージ再同期＋単独コンパイル検証済（commit 8c243de）。
 ⚠️ 教訓: `grep -ci` はゼロ件で exit 1 → `&&` チェーンが短絡し stale ファイルを包に同期しかけた（全文比較で検出・修正済）。検証コマンドは `;` 区切りで。
+
+### 0.24 LNCS 全面様式監査＋14件修復（2026-08-15/16）
+6 次元×20 代理・LNCS 公式文書基準（規則は原文引用必須・文書沈黙時は内部一貫性と明示）：**確認 14・反駁 0・合規記録 3**。
+- **提出版に無関係と判明**: clean 版の del/rev 接縫二重空白（~30 箇所・幾何測定 2 倍）は剥離スクリプトが空白折畳済み→ **final 版は単一空白で正しい**（過去の断詞位置ずれの根因もこれ）。プレビュー専用の宿題として記録のみ。
+- **修復済み 13 件**: ①責任著者 \textsuperscript{(\Envelope)} 標記（指南 §6.2 の bbding 指定通り; E-Vote-ID 2025 出版実例で版式確認済み）②Table 7 表体の趨勢トークン \texttt 化 ③verified+probable の \texttt 化 ④vs.~ ×3（p.13 の規則名分断解消）⑤``never''、論理式句読点 ⑥$n=145$ 数式モード（Table 2/5 caption）⑦α/κ 関係式の完全数式モード ⑧71.0% 精度統一 ×2 ⑨five seeds ⑩引用番号順 [11,13] ×2（指南 §4.9 明文）⑪submission-comment/expert-expert 連字符化（label-text 先例に整合）
+- **文献[5]の二重グルー**（splncs04 の ", ~6" 排出・6.14pt→3.07pt 実測修正）: 修補済み bbl を final tex に**インライン化**（inline_bbl.py; tectonic の bibtex 再走で上書きされないため。以後 final 再生成時は strip→compile→inline_bbl→recompile の順）。
+- 合規記録 3（変更不要）: \texttt{"high"} の直引用符・符号付き数値のソース混在（渲染は一致）・macro F1 の二層大小文字慣例。
+- 全版検証: tracking 24／clean 20（665pt）／final 20・逐字一致・包内単独 20 頁・零 overfull（commit 2c3151d）。
