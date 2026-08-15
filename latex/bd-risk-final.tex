@@ -337,7 +337,7 @@ We continuously crawl three BD-focused subreddits (r/bipolar, r/BipolarReddit, r
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/fig_timeline.pdf}
-\caption{Mood trajectories for four anonymized users (A: depressive with fluctuation; B: hypomanic-leaning with frequent manic transitions; C: manic-dominant with a pattern consistent with rapid cycling; D: dense posting with high mixed-features incidence). Bars = 14-day periods (color = dominant state; hatch = trend direction; thin black border = \texttt{with\_mixed\_features}); dots above bars = post-level annotations, color-coded by post state.}
+\caption{Mood trajectories for four anonymized users (A: depressive with fluctuation, 49 periods; B: hypomanic-leaning with frequent manic transitions, 74 periods; C: manic-dominant with a pattern consistent with rapid cycling, 36 periods; D: dense posting with high mixed-features incidence, 25 periods). Bars = 14-day periods (color = dominant state; hatch = trend direction; thin black border = \texttt{with\_mixed\_features}); dots above bars = post-level annotations, color-coded by post state.}
 \label{fig:user-timeline}
 \end{figure}
 
@@ -418,7 +418,7 @@ Regarding release-time reliability, all period-level (1,794) and post-level (15,
 
 \section{Conclusion}
 
-The validation separates the proposed method's two failure sources: high depressive recall suggests that the schema captures dominant depressive-pole markers, while the low manic recall appears strongly influenced by a structural label-text consistency issue rather than by prompting alone. Without external period-level ground truth, the 1,794 trajectories are validated indirectly through post-level results. Three priorities follow: (1) expert annotation of period-level trends for direct longitudinal validation; (2) a stratified human-in-the-loop audit with inter-annotator agreement; and (3) re-annotation of the corpus with a higher-performing model (e.g., Gemini 3.5 Flash; Sect.~\ref{sec:crossmodel}) to improve manic-pole coverage, combined with targeted prompt revision for the behavioral-cue recognition failure documented in Pattern~1 of Sect.~\ref{sec:error}.
+The validation separates the proposed method's two failure sources: high depressive recall suggests that the schema captures dominant depressive-pole markers, while the low manic recall appears strongly influenced by a structural label-text consistency issue rather than by prompting alone (see Sect.~\ref{sec:discussion}). Without external period-level ground truth, the 1,794 trajectories are validated indirectly through post-level results. Three priorities follow: (1) expert annotation of period-level trends for direct longitudinal validation; (2) a stratified human-in-the-loop audit with inter-annotator agreement; and (3) re-annotation of the corpus with a higher-performing model (e.g., Gemini 3.5 Flash; Sect.~\ref{sec:crossmodel}) to improve manic-pole coverage, combined with targeted prompt revision for the behavioral-cue recognition failure documented in Pattern~1 of Sect.~\ref{sec:error}.
 
 \section{Ethical Considerations}
 \label{sec:ethics}
@@ -444,7 +444,7 @@ The authors have no competing interests to declare that are relevant to the cont
 % published LNCS practice (incl. both appendix-bearing BESC 2025 papers).
 \section*{Appendix}
 
-Four prompts drive the pipeline: (A) post-level annotation with the full DSM-5-grounded schema, clinical guidance rules and eight synthetic few-shot examples; (B) 14-day period-level trend annotation; (C) patient verification (three-tier classifier in Sect.~\ref{sec:pilot}); and (D) de-identification before release (Sect.~\ref{sec:ethics}). Full prompt texts, pipeline source, and evaluation scripts are released at \url{https://github.com/Hintay/bd-state-annotation}.
+Four prompts drive the pipeline: (A) post-level annotation with the full DSM-5-grounded schema, clinical guidance rules, mixed-features rules, and eight synthetic few-shot examples; (B) 14-day period-level trend annotation; (C) patient verification (three-tier classifier in Sect.~\ref{sec:pilot}); and (D) de-identification before release (Sect.~\ref{sec:ethics}). Full prompt texts, pipeline source, and evaluation scripts are released at \url{https://github.com/Hintay/bd-state-annotation}.
 
 \begin{thebibliography}{10}
 \providecommand{\url}[1]{\texttt{#1}}
