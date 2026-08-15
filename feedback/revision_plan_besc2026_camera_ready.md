@@ -295,3 +295,11 @@ Springer 指南 p.2: 責任著者メール=必須（充足済）、全著者メ�
 - **文献[5]の二重グルー**（splncs04 の ", ~6" 排出・6.14pt→3.07pt 実測修正）: 修補済み bbl を final tex に**インライン化**（inline_bbl.py; tectonic の bibtex 再走で上書きされないため。以後 final 再生成時は strip→compile→inline_bbl→recompile の順）。
 - 合規記録 3（変更不要）: \texttt{"high"} の直引用符・符号付き数値のソース混在（渲染は一致）・macro F1 の二層大小文字慣例。
 - 全版検証: tracking 24／clean 20（665pt）／final 20・逐字一致・包内単独 20 頁・零 overfull（commit 2c3151d）。
+
+### 0.25 最終 go/no-go 検査＋文献訂正（2026-08-16）
+9 検査員（逐頁視覚 QA×4・包完全性・封面尾部・文献・数値終驗）: **blocker 0**。発見された minor のうち書誌 3 件を Crossref/ACL Anthology で独立再確認の上訂正:
+- lee2024detecting（BD-Risk・9 回引用）: 頁 4965-4977→**4954-4970**
+- yang2024mentallama: 著者 Alhuzali（非著者）を除き **Yang/Zhang/Kuang/Xie/Huang/Ananiadou** に・頁 797-806→**4489-4500**・表記 **MentaLLaMA**
+- xu2024mental: 欠落著者 **Gabriel, Ghassemi** を復元
+訂正で clean 21 頁化→補償削減 5 件（\del＋dnote 付き）: Conclusion の用途制限文（Ethics 節と重複）・監査の層別枚挙・附録の規則枚挙・去識別分類の括弧枚挙（公開リポジトリ deidentify.md に完備）・Discussion の (see Sect.5) 指針。**flushbottom の節見出しグルーが小刻み削減を吸収する現象を確認**（尾部は見出し密集帯）→ p19 頁頭直撃の分類枚挙削減で突破。**clean 20 頁・654/665pt（11pt=約 1 行の余裕が初めて生まれた）**・tracking 24 頁・final 逐字一致・包内 20 頁訂正反映済（commit bb1b385）。
+残り minor（提出可のまま）: 断詞 3 連×2 箇所・Fig.3 凡例に Uncertain 灰色エントリなし。既知の user 側残: 署名版権表・CMT 題目・push。
