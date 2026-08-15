@@ -418,14 +418,14 @@ Regarding release-time reliability, all period-level (1,794) and post-level (15,
 
 \section{Conclusion}
 
-The validation separates the proposed method's two failure sources: high depressive recall suggests that the schema captures dominant depressive-pole markers, while the low manic recall appears strongly influenced by a structural label-text consistency issue rather than by prompting alone (see Sect.~\ref{sec:discussion}). Without external period-level ground truth, the 1,794 trajectories are validated indirectly through post-level results. Three priorities follow: (1) expert annotation of period-level trends for direct longitudinal validation; (2) a stratified human-in-the-loop audit across mood states, confidence levels, and trend directions with inter-annotator agreement; and (3) re-annotation of the corpus with a higher-performing model (e.g., Gemini 3.5 Flash; Sect.~\ref{sec:crossmodel}) to improve manic-pole coverage, combined with targeted prompt revision for the behavioral-cue recognition failure documented in Pattern~1 of Sect.~\ref{sec:error}. The resulting corpus is intended for computational mental health research and should not be used as a clinical diagnostic tool.
+The validation separates the proposed method's two failure sources: high depressive recall suggests that the schema captures dominant depressive-pole markers, while the low manic recall appears strongly influenced by a structural label-text consistency issue rather than by prompting alone. Without external period-level ground truth, the 1,794 trajectories are validated indirectly through post-level results. Three priorities follow: (1) expert annotation of period-level trends for direct longitudinal validation; (2) a stratified human-in-the-loop audit with inter-annotator agreement; and (3) re-annotation of the corpus with a higher-performing model (e.g., Gemini 3.5 Flash; Sect.~\ref{sec:crossmodel}) to improve manic-pole coverage, combined with targeted prompt revision for the behavioral-cue recognition failure documented in Pattern~1 of Sect.~\ref{sec:error}.
 
 \section{Ethical Considerations}
 \label{sec:ethics}
 
 This study involves analysis of publicly posted social media content discussing sensitive mental health experiences. The study protocol was reviewed and approved by the Research Ethics Committee of the University of Tsukuba (approval no.~25-188). We additionally adhere to Reddit's privacy policy and social media research ethics guidelines~\cite{harrigian2021state}.
 
-Before public release, all post content undergoes LLM-based de-identification. We classify personally identifiable information into five risk-ranked categories (identifiers, quasi-identifiers, contact information, linkage codes, and personal identification codes), replacing each detected span with a category-specific placeholder. The LLM also surfaces long-span quasi-identifiers where individually innocuous details could jointly narrow identification to one person, a pattern that rule-based or NER approaches typically miss. The taxonomy preserves clinically relevant content (medication names, symptom descriptions).
+Before public release, all post content undergoes LLM-based de-identification. We classify personally identifiable information into five risk-ranked categories, replacing each detected span with a category-specific placeholder. The LLM also surfaces long-span quasi-identifiers where individually innocuous details could jointly narrow identification to one person, a pattern that rule-based or NER approaches typically miss. The taxonomy preserves clinically relevant content (medication names, symptom descriptions).
 
  The released dataset retains only anonymized text and relative temporal offsets; usernames, subreddit membership, and other re-identifying metadata are excluded. Because LLM-based de-identification may miss residual quasi-identifiers, release is conditioned on a stratified privacy audit. The dataset is intended solely for computational mental-health research and must not be used for re-identification, commercial profiling, or clinical decision-making without expert oversight.
 
@@ -444,7 +444,7 @@ The authors have no competing interests to declare that are relevant to the cont
 % published LNCS practice (incl. both appendix-bearing BESC 2025 papers).
 \section*{Appendix}
 
-Four prompts drive the pipeline: (A) post-level annotation with the full DSM-5-grounded schema, clinical guidance rules, mixed-features rules, and eight synthetic few-shot examples; (B) 14-day period-level trend annotation; (C) patient verification (three-tier classifier in Sect.~\ref{sec:pilot}); and (D) de-identification before release (Sect.~\ref{sec:ethics}). Full prompt texts, pipeline source, and evaluation scripts are released at \url{https://github.com/Hintay/bd-state-annotation}.
+Four prompts drive the pipeline: (A) post-level annotation with the full DSM-5-grounded schema, clinical guidance rules and eight synthetic few-shot examples; (B) 14-day period-level trend annotation; (C) patient verification (three-tier classifier in Sect.~\ref{sec:pilot}); and (D) de-identification before release (Sect.~\ref{sec:ethics}). Full prompt texts, pipeline source, and evaluation scripts are released at \url{https://github.com/Hintay/bd-state-annotation}.
 
 \begin{thebibliography}{10}
 \providecommand{\url}[1]{\texttt{#1}}
@@ -518,7 +518,7 @@ Lee, D., Jeon, H., Son, S., Park, C., An, J., Kim, S., Han, J.: Detecting
   bipolar disorder from misdiagnosed major depressive disorder with mood-aware
   multi-task learning. In: Proceedings of the 2024 Conference of the North
   American Chapter of the Association for Computational Linguistics: Human
-  Language Technologies (NAACL-HLT). pp. 4965--4977. Association for
+  Language Technologies (NAACL-HLT). pp. 4954--4970. Association for
   Computational Linguistics (2024). \doi{10.18653/v1/2024.naacl-long.278}
 
 \bibitem{sekulic2018not}
@@ -542,17 +542,17 @@ Warner, B., Chaffin, A., Clavi{\'e}, B., Weller, O., Hallstr{\"o}m, O.,
   for Computational Linguistics (2025). \doi{10.18653/v1/2025.acl-long.127}
 
 \bibitem{xu2024mental}
-Xu, X., Yao, B., Dong, Y., Yu, H., Hendler, J., Dey, A.K., Wang, D.:
-  Mental-{LLM}: Leveraging large language models for mental health prediction
-  via online text data. Proceedings of the ACM on Interactive, Mobile, Wearable
-  and Ubiquitous Technologies  \textbf{8}(1),  1--32 (2024).
-  \doi{10.1145/3643540}
+Xu, X., Yao, B., Dong, Y., Gabriel, S., Yu, H., Hendler, J., Ghassemi, M., Dey,
+  A.K., Wang, D.: Mental-{LLM}: Leveraging large language models for mental
+  health prediction via online text data. Proceedings of the ACM on
+  Interactive, Mobile, Wearable and Ubiquitous Technologies  \textbf{8}(1),
+  1--32 (2024). \doi{10.1145/3643540}
 
 \bibitem{yang2024mentallama}
-Yang, K., Zhang, T., Alhuzali, H., Ananiadou, S.: Mental{LL}a{M}a:
-  Interpretable mental health analysis on social media with large language
-  models. In: Proceedings of the ACM Web Conference 2024 (WWW). pp. 797--806
-  (2024). \doi{10.1145/3589334.3648137}
+Yang, K., Zhang, T., Kuang, Z., Xie, Q., Huang, J., Ananiadou, S.:
+  Menta{LL}a{MA}: Interpretable mental health analysis on social media with
+  large language models. In: Proceedings of the ACM Web Conference 2024 (WWW).
+  pp. 4489--4500 (2024). \doi{10.1145/3589334.3648137}
 
 \end{thebibliography}
 

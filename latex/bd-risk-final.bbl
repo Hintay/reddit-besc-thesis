@@ -70,7 +70,7 @@ Lee, D., Jeon, H., Son, S., Park, C., An, J., Kim, S., Han, J.: Detecting
   bipolar disorder from misdiagnosed major depressive disorder with mood-aware
   multi-task learning. In: Proceedings of the 2024 Conference of the North
   American Chapter of the Association for Computational Linguistics: Human
-  Language Technologies (NAACL-HLT). pp. 4965--4977. Association for
+  Language Technologies (NAACL-HLT). pp. 4954--4970. Association for
   Computational Linguistics (2024). \doi{10.18653/v1/2024.naacl-long.278}
 
 \bibitem{sekulic2018not}
@@ -94,16 +94,16 @@ Warner, B., Chaffin, A., Clavi{\'e}, B., Weller, O., Hallstr{\"o}m, O.,
   for Computational Linguistics (2025). \doi{10.18653/v1/2025.acl-long.127}
 
 \bibitem{xu2024mental}
-Xu, X., Yao, B., Dong, Y., Yu, H., Hendler, J., Dey, A.K., Wang, D.:
-  Mental-{LLM}: Leveraging large language models for mental health prediction
-  via online text data. Proceedings of the ACM on Interactive, Mobile, Wearable
-  and Ubiquitous Technologies  \textbf{8}(1),  1--32 (2024).
-  \doi{10.1145/3643540}
+Xu, X., Yao, B., Dong, Y., Gabriel, S., Yu, H., Hendler, J., Ghassemi, M., Dey,
+  A.K., Wang, D.: Mental-{LLM}: Leveraging large language models for mental
+  health prediction via online text data. Proceedings of the ACM on
+  Interactive, Mobile, Wearable and Ubiquitous Technologies  \textbf{8}(1),
+  1--32 (2024). \doi{10.1145/3643540}
 
 \bibitem{yang2024mentallama}
-Yang, K., Zhang, T., Alhuzali, H., Ananiadou, S.: Mental{LL}a{M}a:
-  Interpretable mental health analysis on social media with large language
-  models. In: Proceedings of the ACM Web Conference 2024 (WWW). pp. 797--806
-  (2024). \doi{10.1145/3589334.3648137}
+Yang, K., Zhang, T., Kuang, Z., Xie, Q., Huang, J., Ananiadou, S.:
+  Menta{LL}a{MA}: Interpretable mental health analysis on social media with
+  large language models. In: Proceedings of the ACM Web Conference 2024 (WWW).
+  pp. 4489--4500 (2024). \doi{10.1145/3589334.3648137}
 
 \end{thebibliography}
