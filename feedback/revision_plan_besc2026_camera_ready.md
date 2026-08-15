@@ -312,6 +312,6 @@ Springer 指南 p.2: 責任著者メール=必須（充足済）、全著者メ�
 
 ### 0.27 提出パッケージ整理＋改名（2026-08-16）
 - Springer 清单 "no older source files" に従い source/figures/ の旧 .svg×3・.typ×2 を除去（引用される 3 PDF のみ残置）。
-- **源文件名 bd-risk.tex → BESC2026_paper96.tex**（.bbl 同）: BD-Risk は Lee et al. のデータセット名であり、自分の論文の源文件名に使うと誤解を招くため（本人指摘）。thesis repo 内部の作業名 bd-risk.* は不変。パッケージ PDF は改名後源码の同一コンパイル産物に差し替え（source⇔PDF 完全対応）。
-- 最終樹形: BESC2026_paper96.pdf / BESC2026_copyright_filled.docx（署名版待ち）/ source/{BESC2026_paper96.tex+bbl, refs.bib, llncs.cls, splncs04.bst, figures/3 PDF}・計 940K・包内 20 頁検証済。
-- 以後の再生成: bd-risk-final.* → パッケージへは BESC2026_paper96.* として複製。
+- **源文件名 bd-risk.tex → bd-state-annotation.tex**（.bbl 同; 一旦 BESC2026_paper96.tex としたが本人指示で自プロジェクト名=公開リポジトリ名に統一）: BD-Risk は Lee et al. のデータセット名であり、自分の論文の源文件名に使うと誤解を招くため（本人指摘）。thesis repo 内部の作業名 bd-risk.* は不変。パッケージ PDF は改名後源码の同一コンパイル産物に差し替え（source⇔PDF 完全対応）。
+- 最終樹形: BESC2026_paper96.pdf / BESC2026_copyright_filled.docx（署名版待ち）/ source/{bd-state-annotation.tex+bbl, refs.bib, llncs.cls, splncs04.bst, figures/3 PDF}・計 940K・包内 20 頁検証済。
+- 以後の再生成: bd-risk-final.* → パッケージへは bd-state-annotation.* として複製（PDF のみ BESC2026_paper96.pdf）。
