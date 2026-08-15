@@ -283,3 +283,7 @@ llncsdoc/Springer 指南对照的 6 维度×11 代理审计：封面区・摘要
 - 剥離スクリプト（scratchpad/strip_markup.py, 全ステップ assert 付き）で bd-risk-final.tex 生成: \del 124 削除・\rev 108 展開・トラッキング序文/説明枠/xcolor/ulem 除去。**単独コンパイル 20 頁ちょうど(665pt)・零 error**。clean 版との全文比較=**逐字一致**（差分は del/rev 接縫の二重空白 glue が単一空白になったことによる断詞位置移動のみ=剥離版の方が正しい組版）
 - camera_ready/ 同期完了: BESC2026_paper96.pdf・source/{bd-risk.tex, bd-risk.bbl(新 15 件エントリ+ModernBERT DOI), refs.bib}、figures 無変更確認、source 単独コンパイル 20 頁検証済
 - 残: 署名済み版権表の差し替え（本人）→ ZIP 化 → CMT 提出。thesis repo push も本人。
+
+### 0.23 全著者メール追加（2026-08-15）
+Springer 指南 p.2: 責任著者メール=必須（充足済）、全著者メール=強く推奨（各著者に出版後 Springer Nature Link の個人 access link が届く）→ 3 名分追加: \email{\{lin.jiefeng.tkb\_ge, watanabe.koichiro.ge\}@u.tsukuba.ac.jp, yada@slis.tsukuba.ac.jp}（samplepaper の同域グループ記法）。ヘッダ 1 行増だが本文前で吸収され clean/final とも 20 頁維持。著者ブロックはマーク対象外（説明枠の既定方針通り）。剥離版・パッケージ再同期＋単独コンパイル検証済（commit 8c243de）。
+⚠️ 教訓: `grep -ci` はゼロ件で exit 1 → `&&` チェーンが短絡し stale ファイルを包に同期しかけた（全文比較で検出・修正済）。検証コマンドは `;` 区切りで。
