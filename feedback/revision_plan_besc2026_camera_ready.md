@@ -228,3 +228,52 @@ R3-4（跨域限制）＋R3-6（窗口/锚点敏感性、兼答 R4-D2）→ Limi
 - **低危（已修复 8 项）**：Discussion "as does" 错误省略、"rather than from" 平行结构、"consistency issue" 术语、"in-text"→"in the text"、Pattern 1 悬空 "it"、"verbatim" 残留、§3.2/§4.5 两处 "expert labels" 与 A2 术语统一
 - **有意接受（记录在案）**：Table 5 删行后 per-class 数值仅存于正文叙述（与"数值单处存放"原则一致，正文完整叙述了四类变化）；Pattern 6 空洞化（组会批准的全删）；del/rev 接缝的双空格 glue（不可见）；Pattern 开场 "is the LLM ignoring" 口语性（本人保留的散文化）
 修复后 clean build 仍 20 页整、零 Overfull、无断引用（tracking 版 §4.5 一处 20pt Overfull 系 del+rev 并存所致，仅评审副本可见）。
+
+### 0.15 LNCS 合规审计＋修复（2026-08-10）
+llncsdoc/Springer 指南对照的 6 维度×11 代理审计：封面区・摘要 keywords・credits 位置・全 11 浮动体 caption 位置全部合格。确认 4 项（1 must＋3 should）：
+- **已修复**：①Table 5 (tab:pilot-dists) 正文零引用（Springer §4.5 "cross referred in the text" 违反）→ §5 段落加 \rev{(Table~\ref{tab:pilot-dists})}；②§4.1 标题 "Against"→\del{Against}\rev{against}（全文唯一介词大写标题；heading 内需 \protect）。①的增行用后备候选 **Conclusion 开头数值复述**对冲（87.9%→high、6.7%→low、删 " at the manic pole"；数值在 Table 2/Discussion/Limitations 单处存放原则）→ clean 恢复 20 页。
+- **DOI 补记（测试后保留）**：warner2025modernbert 加 doi=10.18653/v1/2025.acl-long.127＋pages=2526--2547（ACL Anthology 核实）→ 文献表 +1 行被末页 7pt 余量吸收，clean 仍 20 页、**末页 665/665pt 完全满**（此前 658pt）。cohan2018smhd（ACL Anthology 无 DOI）・hirschfeld2002guideline（Crossref 无注册）合规维持原样。bib 变更无法打红字 → 追踪版说明框补记一句。
+- **未决（本人判断待ち）**：anonymous.4open.science URL（§Data Availability 唯一 URL、会过期）→ 需建正式公开仓库后替换。
+- 被反驳 1 项（句首 Fig.→Figure 非 LNCS 规则）；info 6 项记录：stale .bbl（打包时必须用剥离版重新生成）、dechoudhury volume+number BibTeX 警告（number 反正被丢弃）、"(Section~3.2)" 外部论文指向、摘要内 \cite、\emergencystretch、\textbf 行首标签（后三者可接受）。
+现状：tracking 24 页／clean **20 页整・零余量（665/665pt）**。任何后续增补必须等量对冲。
+
+### 0.16 Appendix 规范调查＋credits 顺序修正（2026-08-10）
+4 代理调查（SpringerLink 排版 PDF 3 篇目视核实・BESC 2025 全 111 篇扫描・arXiv llncs 预印本・Springer 官方文档）：
+- **规则**（Instructions for Proceedings Authors, 2026-02 版 p.9）：Appendix 置于 References 前（放错会被排版商强制移动）、单个无编号 "Appendix"／多个 "Appendix 1/2"、须被正文引用、附录内图表公式延续正文编号。llncsdoc 完全未提附录；llncs.cls 的 \appendix 产生字母节（与规定不一致）→ 手写 \section*{Appendix} 是正解（现状已如此）。
+- **Ack vs Appendix 顺序**：官方无明文，但指南自身版式＋3 篇 OA 排版 PDF＋BESC 2025 两篇附录论文（LNCS 16433 p.114 同页直证）全部为 credits → Appendix → References，零反例。**导师 "Appendixの前" 正确**，已将 credits 块移至 \section*{Appendix} 前（块内容全 \rev 红显，位置互换无需额外标注；tex 注释已记排序依据）。两版重编译零错误、页数不变（tracking 24／clean 20 页・665pt）。
+- 附带警示：BESC 2025 有论文留下悬空 "Appendix G" 引用（删附录未删引用），Springer 排版未纠——后续删减需自查。Appendix 标题=独立节标题（"major heading"）、credits=9pt 行内标题，形式区分明确。
+
+### 0.17 斜体/粗体一致性审计＋修复（2026-08-10）
+4 维度×17 代理（确认 6→去重 5・反驳 7・info 5）。审计确立论文双层惯例：**独立标签引用=斜体（\emph{Manic} recall 等）、连字符复合词=正体（Manic-pole/Manic-to-Depressive/Manic-recall ceiling）**——多项"复合词应斜体"指控据此被反驳，Manic-recall ceiling（439/449）维持正体。已修复 5 处（样式变更用 \rev 红显、文字变更用 \del+\rev）：
+1. Table 4 (tab:zeroshot) Accuracy 行胜者 65.9\% 补粗体（4 行中唯一漏粗的胜者；逐格核算确认）
+2. L449 "Manic-F1"×2 → \emph{Manic} F1（与 Table 2 caption 同量同区间的写法矛盾）
+3. L449 "the Manic-pole numbers" → 小写 manic-pole（全文唯一句中大写，同句自有小写形式）
+4. L320 Severity Descriptors 唯一漏斜体处 → \emph
+5. Table 3 caption 图例 DEP = \emph{Depressive} 等 5 词斜体（与 Table 5 caption 图例统一）＋ L200 excluding-\emph{Uncertain}
+被反驳记录：Table 2 Precision 0.833 加粗非错误（加粗惯例=叙事强调而非逐列最大，Table 6 只粗 Macro F1 同理）；\emph{Clinical Guidance} 是 prompt 实际节名（batch.single.md 核实）合法。渲染层字体验证（pymupdf span font）全部通过。两版零错误、页数不变（tracking 24／clean 20 页・665pt）。
+
+### 0.18 交叉引用语义审计＋修复（2026-08-10）
+机械层: clean build 零 "??"、全 \ref 有 \label（孤儿 label 2 个: sec:resource/sec:metrics、無害）。语义层 4 维度×12 代理（确认 7・反驳 1・info 8）、8 处修复完了:
+1. **L430 事实错误**: rapid cycling 误归 User D（caption 归 C; 投稿版由来）→ \del D 从句＋\rev "User~C shows a pattern consistent with rapid cycling"（后续 "cycling patterns" 枚举的锚点恢复）
+2. **L320 最高级不成立**: "benefits the most (+0.116)" が次句の Manic +0.125 と矛盾 → "gains +0.116 in per-class F1"
+3. **L346 数值不成立**: "(with Hypomanic recall varying the most)" — 実際は Manic の方が variance 大（range 0.200 vs 0.188）→ \rev 内から削除
+4. L290 指向錯誤: label--text 主張の指針 (Sect.4.5, Pattern 1)→(Sect.5 Discussion)（Pattern 1 はモデル側要因で自己矛盾だった）
+5. L123 全称承諾削減: "characterized there" \del（Improvement-Narrative/Severity Descriptors は §4.5 未特性化）
+6. L161 "(full analysis in→see) Sect.4.5"（同上理由; L449 の "full analysis in Sect.5" は Discussion が実際に担うため維持）
+7. L354 P6 held-out 承諾回復: "and appears effective on the held-out subset" を P6 に補充（圧縮の連帯傷; 長版は頁数超過のため証拠従句なし短版）
+8. **摘要 L64**: "including"→"alongside"（label-text issue は六 pattern の一員ではなく Discussion 所在）
+反駁 1（L362 +0.116 無来源説—指針は \del 内のみ・数値は L320 が担う）。info 記録: Table6 caption ref は sec:metrics がより正確（未変更）・Table7 "Posts" 列頭 vs 本文 "submissions"（数値は全て検算一致）・Fig1 の optionality 未描画。clean 20 頁復元（P6 句を一度長版で入れ 21 頁→証拠従句を削って 665pt 満杯で 20 頁）。tracking 24 頁・両版零 error。
+
+### 0.19 渡邊さんコメント対応: "tabulated"（2026-08-10）
+渡邊さん指摘「"All five tabulated models" の tabulated は普通は使わない」→ 2 箇所とも表への明示参照に置換（いずれも \rev 内・直接修正）:
+- L346 "All five tabulated models" → "All five models in Table~\ref{tab:crossmodel}"（直前文の「4 追加 LLM＋本文報告の GPT-5.5」と区別する機能を明示参照で維持; Table 6 の 5 行=4 追加+主注釈器で GPT-5.5 含まず、の曖昧性回避に必要な反復）
+- L439 "across the tabulated LLMs (Table~\ref{tab:crossmodel})" → "across the LLMs in Table~\ref{tab:crossmodel}"（括弧参照を本文に吸収、微短縮）
+両版再構築: tracking 24 頁／clean 20 頁（665pt）・零 error・"tabulated" 全文 0 件。
+
+### 0.20 コード公開＋匿名リンク差し替え（2026-08-15）
+- 匿名鏡像の源 = Hintay/bd-state-annotation（私有）と特定 → README を camera-ready 仕様に更新（渡邊さん共著追加・"(Under review.)"→BESC 2026 acceptance＋BibTeX・"our submission"→accepted paper・no task-specific training data at inference time に整合・クロスモデル 5 LLM 列挙・render.py 補記・University of Tsukuba 明記・破折号 4 箇所除去・KAKENHI 謝辞追加）。履歴は単一中性コミット "docs: update README" に squash（本人指示）。
+- 本人が公開化（personal 名義; 転移リダイレクトで後日 kalclab 移管も可逆と助言済み）→ 論文 Appendix の \url を anonymous.4open.science → https://github.com/Hintay/bd-state-annotation に差し替え（\del+\rev、新URL短縮で頁数影響なし）。**LNCS 監査の最終未決項クローズ**。
+- 残: 倉庫 prompts は 5/28 版 — improved_v6 との整合確認は任意（時間があれば）。clean 20 頁（665pt）・tracking 24 頁・零 error。
+
+### 0.21 label-text 表記統一（2026-08-15）
+摘要点検の副産物: "label-text"（連字符・投稿版多数形 6 箇所、摘要含む）vs "label--text"（en-dash・4 箇所、うち 2 箇所は投稿版由来で投稿版自体が不統一）→ 連字符に統一。\rev 内 2 箇所（L320/L346）は直接修正、平文 2 箇所（L290/L439）は \del+\rev。摘要は無変更（点検結果: 摘要は修正不要と確認済み）。clean 20 頁（665pt）・tracking 24 頁・零 error・clean PDF で en-dash 形 0 件確認。
