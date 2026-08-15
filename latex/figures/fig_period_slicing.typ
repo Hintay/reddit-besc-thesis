@@ -2,7 +2,7 @@
 // Compile:  typst compile fig_period_slicing.typ fig_period_slicing.svg
 //           typst compile fig_period_slicing.typ fig_period_slicing.pdf
 // Page width = LNCS text width (12.2 cm); font matches the LaTeX CM look.
-#set page(width: 12.2cm, height: auto, margin: 0pt, fill: white)
+#set page(width: 12.2cm, height: auto, margin: 0.5pt, fill: white)
 #set text(font: "New Computer Modern", size: 10pt)
 
 #{

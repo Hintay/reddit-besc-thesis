@@ -1,7 +1,7 @@
 // Standalone export of the annotation-pipeline diagram (Fig. 1, camera-ready).
 // Watanabe-approved redesign: merged annotation stage, explicit input node.
 // Compile:  typst compile fig_pipeline.typ fig_pipeline.svg  (and .pdf)
-#set page(width: auto, height: auto, margin: 0pt, fill: white)
+#set page(width: auto, height: auto, margin: 0.5pt, fill: white)
 #set text(font: "New Computer Modern", size: 10pt)
 
 #{
